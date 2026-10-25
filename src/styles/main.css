@@ -96,52 +96,6 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--gold-b
 .star-on { color: var(--gold-bright); filter: drop-shadow(0 1px 0 rgba(90, 50, 0, 0.6)); }
 .star-off { color: rgba(246, 239, 227, 0.22); }
 
-/* ---------------------------------------------------------------- title / restoration desk */
-.title-screen {
-  align-items: center; justify-content: center;
-  background:
-    radial-gradient(ellipse 60% 45% at 50% 30%, rgba(255, 210, 130, 0.28), transparent 70%),
-    radial-gradient(ellipse at 50% 120%, #4a2e1e 0%, transparent 60%),
-    linear-gradient(180deg, #1d130e 0%, #2a1a12 55%, #3b2418 100%);
-  padding: calc(var(--safe-top) + 18px) 20px calc(var(--safe-bottom) + 20px);
-  gap: 10px;
-}
-.title-desk {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 30%;
-  background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0 2px, transparent 2px 90px),
-    linear-gradient(180deg, #6b4128 0%, #4c2d1b 30%, #2e1a10 100%);
-  box-shadow: 0 -2px 0 rgba(255, 220, 160, 0.18), 0 -30px 60px rgba(0, 0, 0, 0.5);
-}
-.title-lamp {
-  position: absolute; top: -40px; left: 50%; width: 140vmax; height: 120vmax; transform: translateX(-50%);
-  background: radial-gradient(ellipse 30% 35% at 50% 20%, rgba(255, 220, 150, 0.16), transparent 70%);
-  pointer-events: none;
-  animation: lamp 6s ease-in-out infinite;
-}
-@keyframes lamp { 50% { opacity: 0.8; } }
-.title-stage { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 980px; width: 100%; }
-.title-logo { text-align: center; line-height: 0.92; }
-.title-logo .display { font-size: clamp(44px, 9vw, 92px); color: var(--ivory); text-shadow: 0 3px 0 rgba(0, 0, 0, 0.35), 0 0 40px rgba(232, 196, 106, 0.25); font-style: italic; }
-.title-logo .display em { font-style: normal; color: var(--gold-bright); }
-.title-sub { margin-top: 8px; font-family: var(--display); font-style: italic; font-size: clamp(17px, 3vw, 22px); color: var(--stone); opacity: 0.9; }
-.title-easel { position: relative; width: min(64vw, 330px); aspect-ratio: 0.8; margin: 4px 0 2px; }
-.title-easel canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.title-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; width: min(360px, 90vw); }
-.title-actions .btn { width: 100%; }
-.title-meta { display: flex; gap: 16px; font-size: 13px; font-weight: 700; color: var(--stone-dark); letter-spacing: 0.04em; }
-.title-meta b { color: var(--gold-bright); }
-.title-corner { position: absolute; top: calc(var(--safe-top) + 14px); right: 14px; z-index: 2; display: flex; gap: 10px; }
-.title-foot { position: absolute; bottom: calc(var(--safe-bottom) + 10px); left: 0; right: 0; text-align: center; font-size: 11.5px; color: rgba(226, 214, 194, 0.55); z-index: 1; }
-.title-foot button { text-decoration: underline; text-underline-offset: 3px; color: rgba(226, 214, 194, 0.75); font-size: 11.5px; }
-@media (min-width: 860px) and (min-height: 560px) {
-  .title-stage { flex-direction: row; justify-content: center; gap: 56px; }
-  .title-left { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
-  .title-logo { text-align: left; }
-  .title-actions { align-items: stretch; }
-  .title-easel { width: 340px; }
-}
-@media (max-height: 640px) and (max-width: 859px) { .title-easel { width: min(46vw, 210px); } }
 
 /* ---------------------------------------------------------------- gallery map */
 .map-screen {
@@ -486,32 +440,8 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--gold-b
   .objectives { top: calc(var(--safe-top) + 100px); }
   .obj { font-size: 11.5px; padding: 5px 9px 5px 7px; }
 }
-@media (max-width: 859px), (max-height: 559px) {
-  .title-left { display: contents; }
-  .title-logo { order: 1; }
-  .title-easel { order: 2; }
-  .title-actions { order: 3; }
-}
 .tool .swatch { width: 30px; height: 30px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 -3px 4px rgba(0,0,0,0.25); }
 .tool.active .swatch { transform: scale(1.12); box-shadow: 0 0 0 3px #fff, 0 2px 6px rgba(0,0,0,0.4); }
-
-/* ---------------------------------------------------------------- title ensemble + crew button row */
-.title-row { display: flex; gap: 10px; width: 100%; }
-.title-row .btn { flex: 1 1 0; padding: 0 14px; font-size: 15.5px; white-space: nowrap; }
-.title-crew {
-  position: relative; z-index: 1; display: block; flex: 0 0 auto;
-  width: min(940px, 98vw); height: clamp(104px, 21vh, 230px);
-  margin: 4px 0 18px; pointer-events: none;
-}
-.title-screen { justify-content: space-evenly; }
-@media (min-width: 860px) and (min-height: 560px) {
-  .title-easel { width: min(340px, calc((100vh - 330px) * 0.8)); }
-}
-@media (max-width: 859px), (max-height: 559px) {
-  .title-easel { width: min(60vw, 300px, calc((100dvh - 500px) * 0.8)); min-width: 130px; }
-  .title-crew { height: clamp(96px, 15vh, 150px); margin-bottom: 30px; }
-  .title-logo .display { font-size: clamp(40px, 11vw, 64px); }
-}
 
 /* ---------------------------------------------------------------- crew & critters showcase */
 .cast-scroll { padding-top: 8px; }
@@ -552,4 +482,3 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--gold-b
   .heroes .cast-frame { min-height: 270px; }
   .cast-scale { overflow-x: auto; }
 }
-@media (max-width: 420px) { .title-logo .eyebrow { letter-spacing: 0.1em; font-size: 11px; padding: 0 48px; } }

@@ -1,5 +1,11 @@
 # Development status — 2026-10-25
 
+## Main menu redesign (Design #4) — 2026-10-25 afternoon
+- New gallery-hall main menu (`src/ui/title.ts`, `src/ui/menu/scene.ts`, `src/styles/menu.css`). Rationale, limitations and the visual QA log are in `menu-ui-notes.md`.
+- The cast is the real in-game cast: same `drawHero` / `drawCritter` renderers. `drawHero` now also returns the front-hand position (rendering unchanged).
+- Verified: `npm run build` ✅, `npm test` ✅ (9 tests), `npm run test:e2e` ✅ 12/12 (desktop + Pixel 7). New menu tests: no character overlaps the logo or buttons, wiping removes grime, Play starts stage 1 and Settings opens.
+- Screenshots: `screenshots/title-*.jpg` (new) vs `screenshots/before/title-*.jpg` (old).
+
 ## What shipped in this update
 - **New character system.** Four named heroes (`src/art/crew.ts`) and ten Grimeling species including the King Gloopus boss (`src/art/grimelings.ts`), sharing a felt-and-clay material and face kit (`src/art/draw.ts`). The legacy `drawWorker` / `drawCritter` APIs are unchanged, so every stage uses the new art automatically. Rationale and API: `CHARACTER_BIBLE.md`.
 - **Acting in gameplay.** Hero signature moves play on every win. Critters look surprised when the tool gets close, panic when flung or vacuumed, surrender when caught or bottled (King Gloopus included), and celebrate in the showcase.

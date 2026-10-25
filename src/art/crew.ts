@@ -509,8 +509,11 @@ const LOOKS: Record<HeroId, Look> = {
 
 // ------------------------------------------------------------------ renderer
 
-/** Draw one of the Tiny Restorers standing at (x, y) — feet on the ground — at unit size `s`. */
-export function drawHero(g: CanvasRenderingContext2D, x: number, y: number, s: number, o: WorkerOpts) {
+/**
+ * Draw one of the Tiny Restorers standing at (x, y) — feet on the ground — at unit size `s`.
+ * Returns where the front hand (and its tool) landed, in the caller's coordinate space.
+ */
+export function drawHero(g: CanvasRenderingContext2D, x: number, y: number, s: number, o: WorkerOpts): { x: number; y: number } {
   const seed = o.seed ?? 0;
   const id = o.hero ?? heroForSeed(seed);
   const L = LOOKS[id];
@@ -523,6 +526,7 @@ export function drawHero(g: CanvasRenderingContext2D, x: number, y: number, s: n
   const outfit = o.overalls ?? (id === 'zuzu' ? L.body : id === 'bristle' ? '#F3EBDD' : id === 'mo' ? '#3A6EA5' : '#2F8F8B');
   const c: Ctx = { g, s, W, H, t, P, lod, o, L, outfit, state };
 
+  const entry = g.getTransform();
   g.save();
   if (o.alpha !== undefined) g.globalAlpha *= o.alpha;
   g.translate(x, y);
@@ -586,6 +590,7 @@ export function drawHero(g: CanvasRenderingContext2D, x: number, y: number, s: n
   // front arm + tool on top
   const hand = drawArm(c, 1, P.armF, P.bendF);
   drawTool(g, o.tool ?? 'none', hand.x, hand.y, s, t, o.carry);
+  const handOut = entry.inverse().multiply(g.getTransform()).transformPoint({ x: hand.x, y: hand.y });
 
   if (P.sweat) drawSweat(g, fx - W * 0.42, fy - H * 0.08, s * 0.08, t);
   if (state === 'dizzy') {
@@ -595,6 +600,7 @@ export function drawHero(g: CanvasRenderingContext2D, x: number, y: number, s: n
     }
   }
   g.restore();
+  return { x: handOut.x, y: handOut.y };
 }
 
 function drawArm(c: Ctx, side: -1 | 1, a: number, bend: number) {

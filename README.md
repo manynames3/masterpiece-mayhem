@@ -6,7 +6,9 @@
 
 No download, no sign-up, no ads. Works with a mouse or a thumb, on desktop or phone.
 
-![Title screen: the Tiny Restorers line up on the restoration desk beside a soot-covered Mona Lisa](screenshots/title-desktop.jpg)
+![Main menu: a gilded Girl with a Pearl Earring under amber varnish in a velvet-curtained gallery, with Pip scrubbing from a scaffold, Professor Bristlebrow inspecting the frame, Big Mo holding the ladder and Zuzu chasing a soot critter across the top of the frame](screenshots/title-desktop.jpg)
+
+The main menu is playable too: drag across the painting to wipe away the varnish while the crew works around you. Design notes: [menu-ui-notes.md](menu-ui-notes.md).
 
 ---
 
@@ -59,7 +61,7 @@ Every painting has three beats: the grimy overview, the hidden micro-world, and 
 ![Stage 24 boss fight: King Gloopus in the Garden of Earthly Delights](screenshots/stage24-boss.jpg)
 
 <p>
-  <img src="screenshots/title-mobile.jpg" alt="Title screen on a phone" width="260">
+  <img src="screenshots/title-mobile.jpg" alt="Main menu on a phone" width="260">
   <img src="screenshots/crew-mobile.jpg" alt="Crew & Critters on a phone" width="260">
   <img src="screenshots/stage2-mobile.jpg" alt="Germ Town stage on a phone" width="260">
 </p>
@@ -83,7 +85,8 @@ Handy URL flags while developing: `?stage=12` jumps to an unlocked stage, and `?
 ## Tech & tests
 - **Stack:** TypeScript, Vite, Canvas 2D, Web Audio. Fonts: Fraunces and Nunito (OFL).
 - **Unit tests (Vitest):** `npm test` covers truss physics, courier routing and the character cast registry.
-- **Browser smoke tests (Playwright):** `npx playwright install chromium` once, then `npm run test:e2e`. It builds the production bundle and checks the title ensemble, the Crew & Critters showcase, real scrub progress, and a full autoplayed stage-1 win, on both desktop and mobile viewports.
+- **Browser smoke tests (Playwright):** `npx playwright install chromium` once, then `npm run test:e2e`. It builds the production bundle and checks the main menu (the cast paints and never overlaps the logo or a button, wiping the painting really removes grime, and Play and Settings route correctly), the Crew & Critters showcase, real scrub progress, and a full autoplayed stage-1 win, on both desktop and mobile viewports.
+- **Menu visual QA:** `node scripts/dbg/menu-shots.mjs <outdir> [baseUrl]` captures the menu at 1440×900, 1280×800, 390×844 and 375×667 and reports any character overlapping a control.
 - **Autoplay regression:** `node scripts/autoplay-all.mjs 1-30` runs the built-in QA solver on every stage against a running dev server (edit the base URL argument if your port differs).
 
 ## Status: honest version

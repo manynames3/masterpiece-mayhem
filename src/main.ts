@@ -2,6 +2,7 @@ import '@fontsource-variable/fraunces/full.css';
 import '@fontsource-variable/fraunces/full-italic.css';
 import '@fontsource-variable/nunito';
 import './styles/main.css';
+import './styles/menu.css';
 import { App } from './ui/app';
 
 const root = document.getElementById('app')!;

@@ -16,18 +16,64 @@ const painted = (page: Page, sel: string) => page.locator(sel).first().evaluate(
   return false;
 });
 
-test('title screen shows the crew ensemble and never covers the play button', async ({ page }) => {
+test('main menu paints the real crew without ever covering the logo or a button', async ({ page }) => {
   const errors = trackErrors(page);
   await page.goto('/');
   const play = page.getByTestId('play');
   await expect(play).toBeVisible();
-  await expect(page.getByTestId('open-cast')).toBeVisible();
-  await expect.poll(() => painted(page, 'canvas.title-crew')).toBe(true);
-  const crew = await page.locator('canvas.title-crew').boundingBox();
-  const btn = await play.boundingBox();
-  expect(crew && btn && crew.y >= btn.y + btn.height - 1).toBe(true);
+  for (const id of ['open-map', 'open-cast', 'open-settings']) await expect(page.getByTestId(id)).toBeVisible();
+  await expect.poll(() => painted(page, 'canvas.menu-crew')).toBe(true);
+  await page.waitForTimeout(800); // let the reveal animation settle
+  const overlaps = await page.evaluate(() => {
+    const boxes = (document.querySelector('canvas.menu-crew') as any).__boxes() as DOMRect[];
+    const ui = [...document.querySelectorAll('.mbtn, .menu-logo')].map((e) => e.getBoundingClientRect());
+    return { n: boxes.length, hits: boxes.filter((a) => ui.some((u) => a.left < u.right && a.right > u.left && a.top < u.bottom && a.bottom > u.top)).length };
+  });
+  expect(overlaps.n).toBeGreaterThanOrEqual(7); // 4 heroes + 3 critters
+  expect(overlaps.hits).toBe(0);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   expect(overflow).toBe(false);
+  expect(errors).toEqual([]);
+});
+
+test('dragging across the menu painting wipes away real grime', async ({ page }) => {
+  await page.goto('/');
+  const grime = page.getByTestId('menu-grime');
+  await expect(grime).toBeVisible();
+  await page.waitForTimeout(1600);
+  const box = (await grime.boundingBox())!;
+  // sample the top-left area: away from Pip's scrubbing and the pre-cleaned face patch
+  const alphaAt = () => grime.evaluate((c: HTMLCanvasElement) => {
+    const g = c.getContext('2d')!;
+    const d = g.getImageData(Math.round(c.width * 0.15), Math.round(c.height * 0.15), Math.round(c.width * 0.2), Math.round(c.height * 0.08)).data;
+    let a = 0; for (let i = 3; i < d.length; i += 4) a += d[i];
+    return a / (d.length / 4);
+  });
+  const before = await alphaAt();
+  const x0 = box.x + box.width * 0.12, y0 = box.y + box.height * 0.17;
+  if (test.info().project.name === 'mobile') {
+    // touch drag via pointer events on the canvas
+    await grime.dispatchEvent('pointerdown', { clientX: x0, clientY: y0, pointerId: 1, pointerType: 'touch', buttons: 1 });
+    for (let i = 1; i <= 12; i++) await grime.dispatchEvent('pointermove', { clientX: x0 + box.width * 0.02 * i, clientY: y0 + (i % 2) * 6, pointerId: 1, pointerType: 'touch', buttons: 1 });
+    await grime.dispatchEvent('pointerup', { pointerId: 1, pointerType: 'touch' });
+  } else {
+    await page.mouse.move(x0, y0);
+    await page.mouse.down();
+    for (let i = 1; i <= 12; i++) await page.mouse.move(x0 + box.width * 0.02 * i, y0 + (i % 2) * 6, { steps: 2 });
+    await page.mouse.up();
+  }
+  expect(await alphaAt()).toBeLessThan(before * 0.8);
+});
+
+test('menu buttons route: Play starts stage 1 for a new player, Settings opens', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('/');
+  await page.getByTestId('open-settings').click();
+  await expect(page.getByTestId('settings')).toBeVisible();
+  await page.getByRole('button', { name: 'Close' }).click();
+  await page.getByTestId('play').click();
+  await expect(page.getByTestId('stage-canvas')).toBeVisible({ timeout: 10_000 });
+  await expect.poll(() => page.evaluate(() => (window as any).__MM.state() !== null), { timeout: 15_000 }).toBe(true);
   expect(errors).toEqual([]);
 });
 
