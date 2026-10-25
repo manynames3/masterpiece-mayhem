@@ -1,0 +1,15 @@
+node_modules
+dist
+test-results
+playwright-report
+.DS_Store
+*.log
+.wrangler
+.vite
+coverage
+.env
+.env.*
+*.local
+# internal agent handoff notes (local paths / session ids)
+CLAUDE_SESSION.md
+CHARACTER_AND_RELEASE_BRIEF.md
