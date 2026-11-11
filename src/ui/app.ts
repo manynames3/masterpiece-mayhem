@@ -137,7 +137,7 @@ export class App {
         h('b', null, r.score.toLocaleString()),
       ),
       ba ? h('div', { class: 'ba-wrap', style: `--ar:${r.after!.width / r.after!.height}` }, ba) : null,
-      h('div', { class: 'reward' }, h('span', { class: 'medal' }, '🏅'), h('div', null, h('b', null, st.reward.collectible), st.reward.note)),
+      h('div', { class: 'reward' }, h('span', { class: 'medal', html: icon('medal') }), h('div', null, h('b', null, st.reward.collectible), st.reward.note)),
       galleryDone ? h('div', { class: 'gallery-banner' }, h('span', { class: 'display' }, `${GALLERIES[st.gallery - 1].name} complete!`), `Gallery ${['II', 'III', 'IV', 'V'][st.gallery - 1]} — ${GALLERIES[st.gallery].name} — is now open.`) : null,
       actions,
     );

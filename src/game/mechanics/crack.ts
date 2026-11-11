@@ -309,14 +309,23 @@ export class CrackMechanic extends Mechanic {
     g.lineCap = 'round';
     for (const e of this.edges) {
       const A = this.nodes[e.a], B = this.nodes[e.b];
-      g.strokeStyle = 'rgba(25,14,6,0.85)'; g.lineWidth = 7;
-      g.beginPath(); g.moveTo(A.x, A.y); g.lineTo(B.x, B.y); g.stroke();
-      g.strokeStyle = 'rgba(230,210,170,0.35)'; g.lineWidth = 2;
-      g.beginPath(); g.moveTo(A.x + 3, A.y + 3); g.lineTo(B.x + 3, B.y + 3); g.stroke();
+      // hairline craquelure: a light lifted edge, a thin dark fissure and a soft shadow, jittered along its length
+      const len = Math.hypot(B.x - A.x, B.y - A.y), nx = -(B.y - A.y) / (len || 1), ny = (B.x - A.x) / (len || 1);
+      const steps = Math.max(2, Math.round(len / 14));
+      const pts: [number, number][] = [];
+      for (let k = 0; k <= steps; k++) {
+        const u = k / steps, j = k === 0 || k === steps ? 0 : Math.sin((e.a * 7.3 + e.b * 3.1 + k) * 12.9898) * 2.6;
+        pts.push([A.x + (B.x - A.x) * u + nx * j, A.y + (B.y - A.y) * u + ny * j]);
+      }
+      const path = (dx: number, dy: number) => { g.beginPath(); pts.forEach(([x, y], k) => (k ? g.lineTo(x + dx, y + dy) : g.moveTo(x + dx, y + dy))); g.stroke(); };
+      g.lineJoin = 'round';
+      g.strokeStyle = 'rgba(25,14,6,0.28)'; g.lineWidth = 7; path(0, 1.5);
+      g.strokeStyle = 'rgba(245,230,200,0.55)'; g.lineWidth = 2; path(-1.2, -1.2);
+      g.strokeStyle = 'rgba(30,17,8,0.9)'; g.lineWidth = 3.2; path(0, 0);
       if (e.fill > 0) {
         const fx = A.x + (B.x - A.x) * e.fill, fy = A.y + (B.y - A.y) * e.fill;
         g.strokeStyle = e.fill >= 1 ? `rgba(232,196,106,${0.85 - this.glow * 0.6})` : '#E8C46A';
-        g.lineWidth = 9;
+        g.lineWidth = 7;
         g.beginPath(); g.moveTo(A.x, A.y); g.lineTo(fx, fy); g.stroke();
       }
     }

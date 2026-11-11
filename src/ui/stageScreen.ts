@@ -20,7 +20,8 @@ export function createStageScreen(app: App, stage: StageDef): StageScreen {
   const progressPct = h('span', null, '0%');
   const progressLbl = h('span', null, 'Restored');
   const botchFill = h('i');
-  const botchFace = h('span', { class: 'face' }, '🙂');
+  const botchFace = h('span', { class: 'face', html: icon('faceCalm') });
+  let botchFaceName = 'faceCalm';
   const botch = h('div', { class: 'botch', title: 'Botch Meter — mistakes fill it; when full, the painting gets cursed (temporarily!)' },
     botchFace, h('div', { class: 'meter' }, botchFill), h('div', { class: 'lbl' }, 'BOTCH'));
   const objectives = h('div', { class: 'objectives', 'data-testid': 'objectives', 'aria-live': 'polite' });
@@ -33,7 +34,7 @@ export function createStageScreen(app: App, stage: StageDef): StageScreen {
   const hudTop = h('div', { class: 'hud-top' },
     h('button', { class: 'icon-btn', 'aria-label': 'Pause', html: icon('pause'), 'data-testid': 'pause', onclick: () => openPause() }),
     h('div', { class: 'hud-title' },
-      h('div', { class: 'sub' }, `Stage ${stage.id} · ${def.short} · ${stage.family}`),
+      h('div', { class: 'sub' }, `Stage ${stage.id} · ${def.short}`, h('span', { class: 'fam' }, stage.family)),
       h('div', { class: 'row' }, h('div', { class: 'name display' }, stage.title)),
       h('div', { class: 'progress', role: 'progressbar', 'aria-label': 'Restoration progress' }, progressBar),
       h('div', { class: 'progress-label' }, progressLbl, progressPct),
@@ -122,7 +123,8 @@ export function createStageScreen(app: App, stage: StageDef): StageScreen {
     progressPct.textContent = `${Math.floor(hud.progress * 100)}%`;
     progressLbl.textContent = hud.progressLabel;
     botchFill.style.width = `${Math.round(hud.botch * 100)}%`;
-    botchFace.textContent = hud.curse ? '🤪' : hud.botch > 0.66 ? '😬' : hud.botch > 0.33 ? '😅' : '🙂';
+    const face = hud.curse ? 'faceDizzy' : hud.botch > 0.66 ? 'faceGrit' : hud.botch > 0.33 ? 'faceSweat' : 'faceCalm';
+    if (face !== botchFaceName) { botchFaceName = face; botchFace.innerHTML = icon(face); }
     botch.classList.toggle('wobbly', !!hud.curse);
     // objectives (diffed to keep pop animation meaningful)
     clear(objectives);
@@ -168,7 +170,7 @@ export function createStageScreen(app: App, stage: StageDef): StageScreen {
     removeCurse();
     if (!on) return;
     curseBanner = h('div', { class: 'curse-banner', role: 'alert', 'data-testid': 'curse' },
-      h('span', { class: 'imp' }, '😈'),
+      h('span', { class: 'imp', html: icon('imp') }),
       h('span', null, text),
       h('button', { class: 'btn', onclick: () => runtime.repairCurse() }, 'Fix it!'),
     );

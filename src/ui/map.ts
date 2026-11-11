@@ -81,7 +81,11 @@ export function createMap(app: App, focusStage?: number): HTMLElement {
     const target = scroll.querySelector(`[data-stage="${focusStage ?? current}"]`) as HTMLElement | null;
     if (target) {
       const room = target.closest('.gallery-room') as HTMLElement | null;
-      if (room) scroll.scrollTo({ top: Math.max(0, room.offsetTop - 20), behavior: 'auto' });
+      if (room) {
+        // offsetTop is relative to the screen (it includes the header), so measure against the scroller itself
+        const top = room.getBoundingClientRect().top - scroll.getBoundingClientRect().top + scroll.scrollTop;
+        scroll.scrollTo({ top: Math.max(0, top - 12), behavior: 'auto' });
+      }
     }
   });
   return root;

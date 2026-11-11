@@ -428,7 +428,7 @@ export class StageRuntime {
     const starResults = this.starResults(m);
     const stars = starResults.filter((s) => s.ok).length;
     const score = Math.max(100, Math.round(1000 + (stars - 1) * 250 + this.bonus - this.mistakes * 40 - this.botch.curses * 60));
-    const after = this.snapshot();
+    const after = this.snapshot(true);
     this.cb.onWin({
       stage: this.stage, stars, starResults, score, mistakes: this.mistakes, curses: this.botch.curses,
       time: this.playTime, before: this.before, after, metrics: m,
@@ -577,9 +577,10 @@ export class StageRuntime {
     g.scale(this.unit, this.unit);
     if (this.mech) {
       if (!fullVeil) {
-        // dim halo outside the play rect during work view
+        // gallery-dark halo outside the play rect during work view: hides the cropped outer
+        // frame and the dimmed copy of the painting so the micro-world reads as the one subject
         g.save();
-        g.fillStyle = `rgba(16,10,6,${0.45 * this.zoomK})`;
+        g.fillStyle = `rgba(14,9,5,${0.8 * clamp(this.zoomK * 2.2)})`;
         g.beginPath();
         g.rect(-this.W * 3, -this.H * 3, this.W * 7, this.H * 7);
         g.rect(this.W, 0, -this.W, this.H);
@@ -597,16 +598,46 @@ export class StageRuntime {
       this.fx.render(g);
       const poi = this.cursePoint();
       this.botch.render(g, poi.x, poi.y, Math.min(this.W, this.H) * 0.35, this.t);
-      if (!fullVeil && this.zoomK > 0.3) {
-        // soft inner frame on the micro-world edge
-        g.strokeStyle = `rgba(232,196,106,${0.35 * this.zoomK})`;
-        g.lineWidth = 3;
-        g.strokeRect(0, 0, this.W, this.H);
-      }
+      if (!fullVeil && this.zoomK > 0.05) this.renderMat(g, clamp((this.zoomK - 0.05) / 0.4));
     }
     g.restore();
     const filt = this.botch.cssFilter(this.t);
     if (this.canvas.style.filter !== filt) this.canvas.style.filter = filt;
+  }
+
+  /** Gilt mat around the micro-world, matching the title-screen frame (logical coords). */
+  private renderMat(g: CanvasRenderingContext2D, a: number) {
+    const W = this.W, H = this.H;
+    const m = Math.max(12, Math.min(W, H) * 0.036);
+    g.save();
+    g.globalAlpha = a;
+    // drop shadow cast onto the wall
+    g.shadowColor = 'rgba(0,0,0,0.55)'; g.shadowBlur = m * 2.2; g.shadowOffsetY = m * 0.5;
+    const fg = g.createLinearGradient(-m, -m, W + m, H + m);
+    fg.addColorStop(0, '#F1D07A'); fg.addColorStop(0.3, '#9A7330'); fg.addColorStop(0.55, '#E2BD62'); fg.addColorStop(0.8, '#8A6524'); fg.addColorStop(1, '#D9B25A');
+    g.fillStyle = fg;
+    g.beginPath();
+    g.rect(-m, -m, W + m * 2, H + m * 2);
+    g.rect(W, 0, -W, H);
+    g.fill('evenodd');
+    g.shadowColor = 'transparent';
+    // bevel lines: bright outer lip, dark inner rabbet
+    g.lineWidth = Math.max(1.5, m * 0.12);
+    g.strokeStyle = 'rgba(255,236,180,0.7)';
+    g.strokeRect(-m + g.lineWidth / 2, -m + g.lineWidth / 2, W + m * 2 - g.lineWidth, H + m * 2 - g.lineWidth);
+    g.strokeStyle = 'rgba(70,45,15,0.75)';
+    g.strokeRect(-m * 0.45, -m * 0.45, W + m * 0.9, H + m * 0.9);
+    g.lineWidth = Math.max(2, m * 0.22);
+    g.strokeStyle = 'rgba(30,18,8,0.85)';
+    g.strokeRect(-g.lineWidth / 2, -g.lineWidth / 2, W + g.lineWidth, H + g.lineWidth);
+    // corner rosettes
+    for (const [cx, cy] of [[-m / 2, -m / 2], [W + m / 2, -m / 2], [-m / 2, H + m / 2], [W + m / 2, H + m / 2]]) {
+      const rg = g.createRadialGradient(cx - m * 0.15, cy - m * 0.15, 0, cx, cy, m * 0.7);
+      rg.addColorStop(0, '#FFF1C2'); rg.addColorStop(0.5, '#D9B25A'); rg.addColorStop(1, '#6E5022');
+      g.fillStyle = rg;
+      g.beginPath(); g.arc(cx, cy, m * 0.62, 0, TAU); g.fill();
+    }
+    g.restore();
   }
 
   private cursePoint(): Vec {
@@ -622,13 +653,15 @@ export class StageRuntime {
   }
 
   /** before/after thumbnails for the results card */
-  snapshot(): HTMLCanvasElement | null {
+  snapshot(clean = false): HTMLCanvasElement | null {
     if (!this.mech) return null;
     const w = 520, h = Math.round((520 * this.H) / this.W);
     const c = makeCanvas(w, h);
     const g = c.getContext('2d')!;
     g.scale(w / this.W, h / this.H);
     this.drawPaintingLogical(g, 'clean');
+    // the "after" half of the results slider is the restored painting itself, without puzzle overlays
+    if (clean) return c;
     this.mech.snapshotting = true;
     try { this.mech.renderBelow(g); this.mech.render(g); } catch { /* snapshot is cosmetic */ }
     this.mech.snapshotting = false;

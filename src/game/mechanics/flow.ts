@@ -325,26 +325,35 @@ export class FlowMechanic extends Mechanic {
     const t = this.env.time();
     const cs = this.cs;
     g.save();
-    g.fillStyle = 'rgba(22,14,8,0.32)';
+    g.fillStyle = 'rgba(22,14,8,0.16)';
     roundRect(g, this.ox - 12, this.oy - 12, cs * this.p.cols + 24, cs * this.p.rows + 24, 18); g.fill();
+    g.strokeStyle = 'rgba(232,196,106,0.35)'; g.lineWidth = 2;
+    roundRect(g, this.ox - 12, this.oy - 12, cs * this.p.cols + 24, cs * this.p.rows + 24, 18); g.stroke();
     this.tiles.forEach((tile, i) => {
       const { x, y } = this.tileCenter(i);
       g.save();
       g.translate(x, y);
-      g.strokeStyle = 'rgba(246,239,227,0.08)'; g.lineWidth = 2;
-      g.strokeRect(-cs / 2, -cs / 2, cs, cs);
+      g.strokeStyle = 'rgba(246,239,227,0.1)'; g.lineWidth = 1.5;
+      g.strokeRect(-cs / 2 + 2, -cs / 2 + 2, cs - 4, cs - 4);
       if (tile.kind === 'empty') { g.restore(); return; }
       const ang = (tile.rot - tile.spin) * (Math.PI / 2);
       g.rotate(tile.kind === 'pipe' ? ang : 0);
       const m = tile.mask;
-      const chan = cs * 0.34;
-      // carved channel
+      const chan = cs * 0.28;
+      // brass-rimmed channel carved into the varnish: gilt lip, warm recessed groove, top-light shading
       g.lineCap = 'round';
-      g.strokeStyle = 'rgba(25,14,6,0.88)'; g.lineWidth = chan;
+      g.strokeStyle = 'rgba(40,24,10,0.45)'; g.lineWidth = chan + 8;
       this.drawMask(g, m, cs);
-      g.strokeStyle = 'rgba(232,210,170,0.3)'; g.lineWidth = chan + 8; g.globalCompositeOperation = 'destination-over';
+      g.strokeStyle = '#C9A04E'; g.lineWidth = chan + 5;
       this.drawMask(g, m, cs);
-      g.globalCompositeOperation = 'source-over';
+      g.strokeStyle = 'rgba(255,236,180,0.6)'; g.lineWidth = chan + 1.5;
+      this.drawMask(g, m, cs);
+      g.strokeStyle = 'rgba(58,36,22,0.82)'; g.lineWidth = chan;
+      this.drawMask(g, m, cs);
+      g.save(); g.translate(0, chan * 0.14);
+      g.strokeStyle = 'rgba(95,66,44,0.85)'; g.lineWidth = chan * 0.62;
+      this.drawMask(g, m, cs);
+      g.restore();
       if (tile.wet > 0.02 && tile.colors) {
         g.strokeStyle = this.mixColor(tile.colors);
         g.globalAlpha = tile.wet;
@@ -398,7 +407,7 @@ export class FlowMechanic extends Mechanic {
           drawStarShape(g, x, y, cs * 0.42, ok ? need : 'rgba(40,30,20,0.85)', this.p.theme === 'stars' ? 8 : 5);
           g.strokeStyle = need; g.lineWidth = 4;
           g.beginPath(); g.arc(x, y, cs * 0.46, 0, TAU); g.stroke();
-          if (tile.colors && !ok) { g.fillStyle = '#E86F5A'; g.font = `900 ${cs * 0.3}px system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('✕', x, y); }
+          if (tile.colors && !ok) { g.fillStyle = '#E86F5A'; g.font = `900 ${cs * 0.3}px "Nunito Variable", system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('✕', x, y); }
         } else if (this.p.theme === 'pond') {
           const bloom = lit;
           for (let k = 0; k < 8; k++) {
