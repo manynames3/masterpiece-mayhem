@@ -577,3 +577,34 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--gold-b
   .tool { min-width: 56px; height: 62px; }
   .coach .txt b { font-size: 16px; }
 }
+
+/* ---------------------------------------------------------------- Crew & Critters: theatre hall setting */
+.cast-screen { background: #1a0d09; isolation: isolate; }
+.cast-screen .hall { z-index: 0; }
+.cast-screen .hall-curtain { width: clamp(14px, 4vw, 72px); }
+.cast-screen .hall-curtain::after { top: 46%; }
+.cast-screen .map-header {
+  background: linear-gradient(180deg, rgba(40, 14, 10, 0.97) 70%, rgba(40, 14, 10, 0));
+}
+.cast-screen .map-header::after { /* scalloped valance under the header, as on the title screen */
+  content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 22px; pointer-events: none;
+  background: repeating-linear-gradient(90deg, #5a0b11 0, #941e25 30px, #5a0b11 60px);
+  -webkit-mask: radial-gradient(32px 18px at 50% 100%, transparent 98%, #000) 0 0 / 64px 100%;
+  mask: radial-gradient(32px 18px at 50% 100%, transparent 98%, #000) 0 0 / 64px 100%;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.6));
+}
+.cast-screen .map-scroll { position: relative; z-index: 1; padding-left: clamp(20px, 5vw, 88px); padding-right: clamp(20px, 5vw, 88px); padding-top: 26px; }
+.cast-screen .cast-card {
+  background: linear-gradient(180deg, rgba(255, 240, 210, 0.07), rgba(255, 240, 210, 0.02)), #24150d;
+  box-shadow:
+    0 0 0 1px rgba(20, 10, 4, 0.6) inset,
+    0 0 0 2px #8a6524,
+    0 0 0 3px rgba(241, 208, 122, 0.5),
+    var(--shadow-lg);
+}
+.cast-screen .cast-h { text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5); }
+.cast-screen .cast-h::after {
+  content: ''; display: block; width: 64px; height: 3px; margin-top: 6px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--gold-bright), rgba(232, 196, 106, 0));
+}
+.cast-screen .cast-scale { background: rgba(20, 10, 6, 0.6); }

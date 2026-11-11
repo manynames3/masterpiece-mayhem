@@ -402,18 +402,41 @@ export class PeelMechanic extends Mechanic {
   private drawFlap(g: CanvasRenderingContext2D, flap: Vec[], s: Strip) {
     const bb = bounds(flap);
     const C = s.grab, P = s.P;
+    // aged varnish film: translucent amber, darker where it has pooled, lighter at the curled lip
     const gr = g.createLinearGradient(C.x, C.y, P.x, P.y);
-    gr.addColorStop(0, 'rgba(255,236,190,0.95)');
-    gr.addColorStop(0.55, 'rgba(232,180,100,0.92)');
-    gr.addColorStop(1, 'rgba(170,110,40,0.95)');
+    gr.addColorStop(0, 'rgba(255,232,180,0.9)');
+    gr.addColorStop(0.35, 'rgba(226,170,86,0.82)');
+    gr.addColorStop(1, 'rgba(150,92,30,0.88)');
     g.fillStyle = gr;
     path(g, flap); g.fill();
-    g.strokeStyle = 'rgba(255,248,225,0.9)'; g.lineWidth = 3; g.stroke();
-    // fold highlight
     g.save(); path(g, flap); g.clip();
-    g.fillStyle = 'rgba(255,255,255,0.15)';
-    for (let i = 0; i < 4; i++) g.fillRect(bb.x + (i / 4) * bb.w, bb.y, 6, bb.h);
+    const dx = P.x - C.x, dy = P.y - C.y, len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
+    const span = Math.hypot(bb.w, bb.h);
+    const cx = bb.x + bb.w / 2, cy = bb.y + bb.h / 2;
+    // fine crinkles running across the peel direction
+    g.lineCap = 'round';
+    for (let i = -14; i <= 14; i++) {
+      const o = (i / 14) * span * 0.6;
+      const px = cx + ux * o, py = cy + uy * o;
+      g.strokeStyle = i % 3 === 0 ? 'rgba(255,245,215,0.28)' : 'rgba(110,60,15,0.18)';
+      g.lineWidth = i % 3 === 0 ? 2 : 1.2;
+      g.beginPath();
+      for (let k = -6; k <= 6; k++) {
+        const q = (k / 6) * span * 0.7, w = Math.sin(k * 1.7 + i * 2.3) * 4;
+        const x = px + nx * q + ux * w, y = py + ny * q + uy * w;
+        if (k === -6) g.moveTo(x, y); else g.lineTo(x, y);
+      }
+      g.stroke();
+    }
+    // glossy specular band along the sheet
+    const sg = g.createLinearGradient(cx - nx * span * 0.5, cy - ny * span * 0.5, cx + nx * span * 0.5, cy + ny * span * 0.5);
+    sg.addColorStop(0.3, 'rgba(255,255,255,0)'); sg.addColorStop(0.45, 'rgba(255,255,255,0.32)'); sg.addColorStop(0.55, 'rgba(255,255,255,0)');
+    g.fillStyle = sg; g.fillRect(bb.x, bb.y, bb.w, bb.h);
     g.restore();
+    g.lineJoin = 'round';
+    g.strokeStyle = 'rgba(110,62,18,0.55)'; g.lineWidth = 5; path(g, flap); g.stroke();
+    g.strokeStyle = 'rgba(255,246,220,0.9)'; g.lineWidth = 2; path(g, flap); g.stroke();
   }
 
   // ------------------------------------------------------------------ QA autoplay

@@ -290,21 +290,29 @@ export class CourierMechanic extends Mechanic {
     for (const e of this.edges) {
       const A = this.nodes[e.a], B = this.nodes[e.b];
       const used = e.used >= 0;
-      g.strokeStyle = 'rgba(22,12,5,0.85)'; g.lineWidth = used ? 12 : 9;
-      g.beginPath(); g.moveTo(A.x, A.y); g.lineTo(B.x, B.y); g.stroke();
       if (used) {
         const r = this.routes.find((q) => q.dest === e.used);
-        g.strokeStyle = r ? this.p.colors[r.color] : '#E8C46A';
-        g.globalAlpha = 0.85;
-        g.lineWidth = 6;
+        g.strokeStyle = 'rgba(22,12,5,0.7)'; g.lineWidth = 11;
         g.beginPath(); g.moveTo(A.x, A.y); g.lineTo(B.x, B.y); g.stroke();
-        g.globalAlpha = 1;
+        g.strokeStyle = r ? this.p.colors[r.color] : '#E8C46A';
+        g.lineWidth = 7;
+        g.beginPath(); g.moveTo(A.x, A.y); g.lineTo(B.x, B.y); g.stroke();
+        g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 2;
+        g.beginPath(); g.moveTo(A.x - 1, A.y - 1.5); g.lineTo(B.x - 1, B.y - 1.5); g.stroke();
       } else {
-        g.strokeStyle = 'rgba(240,220,180,0.25)'; g.lineWidth = 2;
-        g.beginPath(); g.moveTo(A.x + 2, A.y + 3); g.lineTo(B.x + 2, B.y + 3); g.stroke();
+        // open crack: a hairline fissure with a lifted light edge, readable as a route but not a marker stroke
+        g.strokeStyle = 'rgba(22,12,5,0.3)'; g.lineWidth = 8;
+        g.beginPath(); g.moveTo(A.x, A.y + 1.5); g.lineTo(B.x, B.y + 1.5); g.stroke();
+        g.strokeStyle = 'rgba(245,230,200,0.6)'; g.lineWidth = 2;
+        g.beginPath(); g.moveTo(A.x - 1.2, A.y - 1.2); g.lineTo(B.x - 1.2, B.y - 1.2); g.stroke();
+        g.strokeStyle = 'rgba(30,17,8,0.9)'; g.lineWidth = 3.6;
+        g.beginPath(); g.moveTo(A.x, A.y); g.lineTo(B.x, B.y); g.stroke();
       }
     }
-    for (const n of this.nodes) { g.fillStyle = 'rgba(22,12,5,0.9)'; g.beginPath(); g.arc(n.x, n.y, 7, 0, TAU); g.fill(); }
+    for (const n of this.nodes) {
+      g.fillStyle = 'rgba(30,17,8,0.9)'; g.beginPath(); g.arc(n.x, n.y, 5.5, 0, TAU); g.fill();
+      g.fillStyle = 'rgba(232,196,106,0.85)'; g.beginPath(); g.arc(n.x - 0.8, n.y - 0.8, 2.4, 0, TAU); g.fill();
+    }
     // paint-loss spots waiting for colour
     for (const d of this.dests) {
       const n = this.nodes[d.node];

@@ -3,6 +3,9 @@ import type { Vec } from '../core/math';
 
 let SEED = 1;
 
+/** Visual scale for heroes in play; positions and hit areas use the unscaled size. */
+export const HERO_DRAW_SCALE = 1.4;
+
 /** A Tiny Restorer that physically walks routes and performs timed jobs. */
 export class Walker {
   x: number;
@@ -101,7 +104,22 @@ export class Walker {
   }
 
   draw(g: CanvasRenderingContext2D, t: number) {
-    drawWorker(g, this.x, this.y, this.size, {
+    // Heroes are drawn larger than their gameplay footprint so they read at phone scale,
+    // standing in a soft warm pool of light that separates them from busy paintings.
+    const s = this.size * HERO_DRAW_SCALE;
+    if (this.alpha > 0.05) {
+      g.save();
+      g.globalAlpha = 0.5 * this.alpha;
+      const cy = this.y - s * 0.75;
+      const rg = g.createRadialGradient(this.x, cy, 0, this.x, cy, s * 1.25);
+      rg.addColorStop(0, 'rgba(255,240,205,0.85)');
+      rg.addColorStop(0.55, 'rgba(255,232,180,0.35)');
+      rg.addColorStop(1, 'rgba(255,232,180,0)');
+      g.fillStyle = rg;
+      g.beginPath(); g.ellipse(this.x, cy, s * 1.0, s * 1.25, 0, 0, Math.PI * 2); g.fill();
+      g.restore();
+    }
+    drawWorker(g, this.x, this.y, s, {
       t, seed: this.seed, hero: this.hero, facing: this.facing, state: this.state, tool: this.tool,
       carry: this.carry, lookX: this.lookX, lookY: this.lookY, alpha: this.alpha,
       overalls: this.overalls, badge: this.badge,

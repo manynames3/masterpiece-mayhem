@@ -16,6 +16,7 @@ export interface GrimeStyle {
   speckle?: number;   // speckle density
   streaks?: boolean;
   fuzz?: boolean;     // dust-bunny fuzz
+  strands?: boolean;  // pond-weed filaments and trapped bubbles
   seed?: number;
 }
 
@@ -23,7 +24,7 @@ export const GRIME: Record<string, GrimeStyle> = {
   soot: { base: '#5A4630', dark: '#2E2216', light: '#8A7250', speckle: 1, streaks: true },
   smoke: { base: '#4A4038', dark: '#221C18', light: '#7C6E60', speckle: 0.6 },
   dust: { base: '#9A8E7E', dark: '#6A6052', light: '#C8BCA8', speckle: 0.4, fuzz: true },
-  algae: { base: '#3E6B44', dark: '#1F3E28', light: '#7FAE6A', speckle: 0.7 },
+  algae: { base: '#3E6B44', dark: '#1F3E28', light: '#7FAE6A', speckle: 0.5, strands: true },
   slime: { base: '#6FA43A', dark: '#3C6A1E', light: '#B6E06A', speckle: 0.5 },
   tarnish: { base: '#6E6A5A', dark: '#3A382E', light: '#A8A28A', speckle: 0.5, streaks: true },
   plaster: { base: '#B9AE98', dark: '#8A806C', light: '#E2D9C6', speckle: 0.8 },
@@ -84,6 +85,29 @@ export function grimeTexture(w: number, h: number, style: GrimeStyle): HTMLCanva
     for (let i = 0; i < (w * h) / 300; i++) {
       const x = rng.next() * w, y = rng.next() * h, a = rng.next() * TAU, l = 3 + rng.next() * 7;
       g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a + 1) * l, y + Math.sin(a + 1) * l, x + Math.cos(a) * l * 1.5, y + Math.sin(a) * l * 1.5); g.stroke();
+    }
+  }
+  if (style.strands) {
+    // drifting filaments: long wavy strokes in two greens, then a few trapped air bubbles
+    g.lineCap = 'round';
+    for (let i = 0; i < (w * h) / 2600; i++) {
+      const x = rng.next() * w, y = rng.next() * h, a = -0.6 + rng.next() * 1.2 + Math.PI / 2, l = 40 + rng.next() * 90;
+      const light = rng.chance(0.55);
+      g.strokeStyle = light ? `rgba(${lr},${lg},${lb},${0.35 + rng.next() * 0.3})` : `rgba(${dr},${dg},${db},${0.4 + rng.next() * 0.3})`;
+      g.lineWidth = 1.2 + rng.next() * 2.2;
+      g.beginPath(); g.moveTo(x, y);
+      const k = 4 + Math.floor(rng.next() * 3);
+      for (let j = 1; j <= k; j++) {
+        const u = (j / k) * l, wob = Math.sin(j * 1.9 + i) * 8;
+        g.lineTo(x + Math.cos(a) * u + Math.cos(a + Math.PI / 2) * wob, y + Math.sin(a) * u + Math.sin(a + Math.PI / 2) * wob);
+      }
+      g.stroke();
+    }
+    for (let i = 0; i < (w * h) / 9000; i++) {
+      const x = rng.next() * w, y = rng.next() * h, r = 2 + rng.next() * 4;
+      g.strokeStyle = 'rgba(220,240,225,0.55)'; g.lineWidth = 1;
+      g.beginPath(); g.arc(x, y, r, 0, TAU); g.stroke();
+      g.fillStyle = 'rgba(255,255,255,0.6)'; g.beginPath(); g.arc(x - r * 0.35, y - r * 0.35, r * 0.3, 0, TAU); g.fill();
     }
   }
   cache.set(key, c);

@@ -1,4 +1,5 @@
 import { drawCritter, drawGrimeHut, drawWorker, roundRect, type CritterKind, type Mood } from '../../art/characters';
+import { HERO_DRAW_SCALE } from '../agents';
 import { drawBrushTool, drawFragileZone, drawNozzle } from '../../art/props';
 import { GRIME } from '../../art/textures';
 import type { PointerState } from '../../core/input';
@@ -587,7 +588,7 @@ export class CrittersMechanic extends Mechanic {
     g.strokeStyle = this.tank < 0.25 ? '#E86F5A' : '#2F8F8B'; g.lineWidth = 5;
     g.beginPath(); g.arc(0, 2, 14, Math.PI * 0.75, Math.PI * 0.75 + this.tank * Math.PI * 1.5); g.stroke();
     g.restore();
-    drawWorker(g, c.x + 70, c.y + 26, 36, { t, seed: 9, state: this.ptr.down ? 'work' : 'idle', tool: 'hose', facing: -1 });
+    drawWorker(g, c.x + 70, c.y + 26, 36 * HERO_DRAW_SCALE, { t, seed: 9, state: this.ptr.down ? 'work' : 'idle', tool: 'hose', facing: -1 });
   }
 
   // ------------------------------------------------------------------ QA autoplay

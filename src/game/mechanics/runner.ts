@@ -1,6 +1,8 @@
 import { drawBoat, drawCritter, drawPigment, drawWorker } from '../../art/characters';
+import { HERO_DRAW_SCALE } from '../agents';
 import type { PointerState } from '../../core/input';
 import { RNG, TAU, clamp, damp, dist } from '../../core/math';
+import { roundRect } from '../../art/draw';
 import { FakePointer, Mechanic, type ToolDef } from '../mechanic';
 
 export interface RunnerParams {
@@ -213,21 +215,37 @@ export class RunnerMechanic extends Mechanic {
     const scroll = this.dist * this.pxPerM;
     g.save();
     if (this.p.mode === 'lanes') {
-      // swirling water channels scrolling over the print
-      g.fillStyle = 'rgba(29,63,110,0.25)'; g.fillRect(0, 0, W, H);
-      g.strokeStyle = 'rgba(244,241,230,0.55)'; g.lineWidth = 5; g.lineCap = 'round';
-      for (let i = -2; i < 16; i++) {
-        const y = ((i * 110 + scroll) % (H + 220)) - 110;
-        for (let l = 0; l < this.lanes; l++) {
-          const x = this.laneX(l);
+      // Hokusai-style water: one even indigo wash, foam ropes between lanes, crest curls scrolling down
+      const wg = g.createLinearGradient(0, 0, 0, H);
+      wg.addColorStop(0, 'rgba(20,46,92,0.55)'); wg.addColorStop(1, 'rgba(28,62,112,0.45)');
+      g.fillStyle = wg; g.fillRect(0, 0, W, H);
+      g.lineCap = 'round';
+      for (let l = 0; l < this.lanes - 1; l++) {
+        const mx = (this.laneX(l) + this.laneX(l + 1)) / 2;
+        for (const [col, lw] of [['rgba(20,40,80,0.5)', 9], ['rgba(244,241,230,0.75)', 4]] as const) {
+          g.strokeStyle = col; g.lineWidth = lw;
           g.beginPath();
-          g.arc(x + Math.sin(i + l) * 40, y, 26 + (i % 3) * 8, 0.2, Math.PI - 0.2);
+          for (let y = -20; y <= H + 20; y += 12) {
+            const ex = mx + Math.sin((y - scroll) / 34 + l * 2) * 7;
+            if (y === -20) g.moveTo(ex, y); else g.lineTo(ex, y);
+          }
           g.stroke();
         }
       }
-      g.strokeStyle = 'rgba(244,241,230,0.18)'; g.lineWidth = 3; g.setLineDash([18, 22]); g.lineDashOffset = -scroll;
-      for (let l = 0; l < this.lanes - 1; l++) { const x = (this.laneX(l) + this.laneX(l + 1)) / 2; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
-      g.setLineDash([]);
+      for (let l = 0; l < this.lanes; l++) {
+        const x = this.laneX(l);
+        for (let i = -2; i < 10; i++) {
+          const y = ((i * 170 + scroll + l * 60) % (H + 340)) - 170;
+          const cx = x + Math.sin(i * 2.3 + l) * 50;
+          // crest: indigo body under a cream claw with three foam fingers
+          g.strokeStyle = 'rgba(16,40,82,0.9)'; g.lineWidth = 12;
+          g.beginPath(); g.arc(cx, y, 30, Math.PI * 1.05, Math.PI * 1.9); g.stroke();
+          g.strokeStyle = 'rgba(244,241,230,0.95)'; g.lineWidth = 5;
+          g.beginPath(); g.arc(cx, y, 30, Math.PI * 1.05, Math.PI * 1.9); g.stroke();
+          g.fillStyle = 'rgba(244,241,230,0.95)';
+          for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(cx + 26 + k * 2, y - 12 + k * 7, 4 - k * 0.6, 0, TAU); g.fill(); }
+        }
+      }
     } else {
       // raised impasto channel: draw the walls of a curving brushstroke
       g.fillStyle = 'rgba(15,25,60,0.38)'; g.fillRect(0, 0, W, H);
@@ -293,7 +311,7 @@ export class RunnerMechanic extends Mechanic {
           break;
         case 'crew':
           g.fillStyle = '#8A5A34'; g.fillRect(x - 46, y + 6, 92, 16);
-          drawWorker(g, x, y + 8, 34, { t, seed: Math.round(it.phase * 10), state: 'scared', tool: 'flag' });
+          drawWorker(g, x, y + 8, 34 * HERO_DRAW_SCALE, { t, seed: Math.round(it.phase * 10), state: 'scared', tool: 'flag' });
           break;
         case 'drop':
           drawPigment(g, x, y + Math.sin(t * 5 + it.phase) * 6, 20, this.p.pickupColor ?? '#E9D86A', 1);
@@ -309,14 +327,20 @@ export class RunnerMechanic extends Mechanic {
         g.fillStyle = '#E86F5A'; g.beginPath(); g.ellipse(0, 18, 56, 16, 0, 0, TAU); g.fill();
         g.fillStyle = '#F6EFE3'; g.fillRect(-50, 14, 100, 5);
         g.restore();
-        drawWorker(g, this.x, by + 12, 44, { t, seed: 6, state: 'cheer', tool: 'none', facing: this.tilt >= 0 ? 1 : -1 });
+        drawWorker(g, this.x, by + 12, 44 * HERO_DRAW_SCALE, { t, seed: 6, state: 'cheer', tool: 'none', facing: this.tilt >= 0 ? 1 : -1 });
       }
     }
     // distance ribbon
     const k = clamp(this.dist / this.p.length);
-    g.fillStyle = 'rgba(22,15,11,0.6)'; g.fillRect(20, 70, 14, H - 300);
-    g.fillStyle = '#E8C46A'; g.fillRect(20, 70 + (H - 300) * (1 - k), 14, (H - 300) * k);
-    g.fillStyle = '#F6EFE3'; g.beginPath(); g.arc(27, 70 + (H - 300) * (1 - k), 12, 0, TAU); g.fill();
+    // gilt progress rail
+    const rh = H - 300;
+    g.fillStyle = 'rgba(22,15,11,0.7)'; roundRect(g, 18, 68, 18, rh + 4, 9); g.fill();
+    g.strokeStyle = '#C9A04E'; g.lineWidth = 2.5; roundRect(g, 18, 68, 18, rh + 4, 9); g.stroke();
+    const rg = g.createLinearGradient(0, 70 + rh * (1 - k), 0, 70 + rh);
+    rg.addColorStop(0, '#F1D07A'); rg.addColorStop(1, '#9A7330');
+    g.fillStyle = rg; roundRect(g, 21, 70 + rh * (1 - k), 12, Math.max(12, rh * k), 6); g.fill();
+    g.fillStyle = '#F6EFE3'; g.strokeStyle = '#8A6524'; g.lineWidth = 3;
+    g.beginPath(); g.arc(27, 70 + rh * (1 - k), 12, 0, TAU); g.fill(); g.stroke();
     void dist;
   }
 

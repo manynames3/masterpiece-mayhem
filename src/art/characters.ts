@@ -1,5 +1,5 @@
 import { TAU, RNG } from '../core/math';
-import { roundRect, shade, stepT } from './draw';
+import { clay, contactShadow, drawBlush, drawEye, drawMouth, lodFor, rgba, roundRect, shade, stepT } from './draw';
 import { drawHero, type WorkerOpts } from './crew';
 import { drawGrimeling, type CritterKind, type CritterOpts } from './grimelings';
 
@@ -20,32 +20,52 @@ export function drawCritter(g: CanvasRenderingContext2D, x: number, y: number, r
 }
 
 export function drawFrog(g: CanvasRenderingContext2D, x: number, y: number, s: number, o: { t: number; seed?: number; color?: string; state?: 'idle' | 'hop' | 'work' | 'cheer'; tool?: string; facing?: number }) {
+  // Pond-crew frogs in the shared felt-and-clay material, so they sit with the four heroes.
   const t = stepT(o.t + (o.seed ?? 0) * 0.3);
   const c = o.color ?? '#5E9A48';
   const hop = o.state === 'hop' ? Math.abs(Math.sin(t * 10)) * s * 0.8 : o.state === 'cheer' ? Math.abs(Math.sin(t * 8)) * s * 0.5 : 0;
   const sq = o.state === 'work' ? 1 + Math.sin(t * 20) * 0.1 : 1;
+  const lod = lodFor(g, s * 2);
   g.save();
   g.translate(x, y);
-  g.fillStyle = 'rgba(10,20,30,0.25)';
-  g.beginPath(); g.ellipse(0, 0, s * 0.8, s * 0.22, 0, 0, TAU); g.fill();
+  contactShadow(g, 0, 0, s * 0.85 * (1 - hop / (s * 2)), s * 0.22);
   g.translate(0, -hop);
   g.scale((o.facing ?? 1) / sq, sq);
-  g.fillStyle = c;
-  g.beginPath(); g.ellipse(-s * 0.55, -s * 0.15, s * 0.32, s * 0.2, 0.3, 0, TAU); g.ellipse(s * 0.55, -s * 0.15, s * 0.32, s * 0.2, -0.3, 0, TAU); g.fill();
-  g.beginPath(); g.ellipse(0, -s * 0.5, s * 0.7, s * 0.5, 0, 0, TAU); g.fill();
-  g.fillStyle = '#E8E2A0';
-  g.beginPath(); g.ellipse(0, -s * 0.35, s * 0.45, s * 0.28, 0, 0, TAU); g.fill();
-  for (const ex of [-s * 0.35, s * 0.35]) {
-    g.fillStyle = c; g.beginPath(); g.arc(ex, -s * 0.95, s * 0.24, 0, TAU); g.fill();
-    g.fillStyle = '#fff'; g.beginPath(); g.arc(ex, -s * 0.97, s * 0.17, 0, TAU); g.fill();
-    g.fillStyle = '#111'; g.beginPath(); g.arc(ex + s * 0.03, -s * 0.95, s * 0.09, 0, TAU); g.fill();
+  // back legs
+  for (const side of [-1, 1]) {
+    const leg = new Path2D();
+    leg.ellipse(side * s * 0.55, -s * 0.15, s * 0.34, s * 0.21, side * -0.3, 0, TAU);
+    clay(g, leg, shade(c, -0.08), { cx: side * s * 0.55, cy: -s * 0.15, w: s * 0.7, h: s * 0.42, lod });
   }
-  g.strokeStyle = '#2A4A1E'; g.lineWidth = s * 0.06;
-  g.beginPath(); g.arc(0, -s * 0.62, s * 0.28, 0.3, Math.PI - 0.3); g.stroke();
+  const body = new Path2D();
+  body.ellipse(0, -s * 0.5, s * 0.72, s * 0.52, 0, 0, TAU);
+  clay(g, body, c, { cx: 0, cy: -s * 0.5, w: s * 1.44, h: s * 1.04, lod });
+  const belly = new Path2D();
+  belly.ellipse(0, -s * 0.33, s * 0.46, s * 0.28, 0, 0, TAU);
+  clay(g, belly, '#E8E2A0', { cx: 0, cy: -s * 0.33, w: s * 0.92, h: s * 0.56, lod, outline: 'none' });
+  // spots
+  if (lod > 0) {
+    g.fillStyle = rgba(shade(c, -0.35), 0.55);
+    for (const [dx, dy, r] of [[-0.42, -0.72, 0.08], [0.48, -0.66, 0.06], [-0.18, -0.86, 0.05]]) { g.beginPath(); g.arc(dx * s, dy * s, r * s, 0, TAU); g.fill(); }
+  }
+  // eye bumps + eyes from the shared face kit
+  for (const side of [-1, 1]) {
+    const bump = new Path2D();
+    bump.arc(side * s * 0.36, -s * 0.95, s * 0.26, 0, TAU);
+    clay(g, bump, c, { cx: side * s * 0.36, cy: -s * 0.95, w: s * 0.52, h: s * 0.52, lod });
+    drawEye(g, side * s * 0.36, -s * 0.97, s * 0.17, s * 0.18, { style: o.state === 'cheer' ? 'happy' : 'normal', lookX: 0.25, lookY: 0.1, iris: '#3E2A12', lid: c, t, blink: Math.sin(t * 1.3 + (o.seed ?? 0)) > 0.985 ? 1 : 0, lod });
+  }
+  drawMouth(g, 0, -s * 0.62, s * 0.5, o.state === 'cheer' ? 'grin' : 'smile', t, '#2A4A1E');
+  if (lod > 0) drawBlush(g, -s * 0.42, -s * 0.6, s * 0.1);
+  if (lod > 0) drawBlush(g, s * 0.42, -s * 0.6, s * 0.1);
   // tiny hard hat — they're on the crew too
-  g.fillStyle = o.tool === 'tongue' ? '#E86F5A' : o.tool === 'splash' ? '#3A6EA5' : '#F2B630';
-  g.beginPath(); g.arc(0, -s * 1.02, s * 0.32, Math.PI, 0); g.fill();
-  g.fillRect(-s * 0.4, -s * 1.05, s * 0.8, s * 0.07);
+  const hat = new Path2D();
+  hat.arc(0, -s * 1.12, s * 0.3, Math.PI, 0); hat.closePath();
+  const hc = o.tool === 'tongue' ? '#E86F5A' : o.tool === 'splash' ? '#3A6EA5' : '#F2B630';
+  clay(g, hat, hc, { cx: 0, cy: -s * 1.25, w: s * 0.6, h: s * 0.3, lod });
+  const brim = new Path2D();
+  brim.ellipse(0, -s * 1.12, s * 0.42, s * 0.07, 0, 0, TAU);
+  clay(g, brim, shade(hc, -0.12), { cx: 0, cy: -s * 1.12, w: s * 0.84, h: s * 0.14, lod });
   g.restore();
 }
 

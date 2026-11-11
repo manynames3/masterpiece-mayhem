@@ -1,4 +1,5 @@
 import { drawCritter, drawWorker, roundRect } from '../../art/characters';
+import { HERO_DRAW_SCALE } from '../agents';
 import { GRIME } from '../../art/textures';
 import type { PointerState } from '../../core/input';
 import { TAU, clamp, damp, dist, pointInPolygon, type Vec } from '../../core/math';
@@ -264,7 +265,7 @@ export class BossMechanic extends Mechanic {
     const t = this.env.time();
     const b = this.boss;
     const { W, H } = this.env;
-    for (const c of this.crew) drawWorker(g, c.x, c.y, 36, { t, seed: c.seed, state: c.slimed > 0 ? 'dizzy' : 'walk', tool: 'sponge', facing: c.tx > c.x ? 1 : -1, overalls: c.slimed > 0 ? '#7DB33E' : undefined });
+    for (const c of this.crew) drawWorker(g, c.x, c.y, 36 * HERO_DRAW_SCALE, { t, seed: c.seed, state: c.slimed > 0 ? 'dizzy' : 'walk', tool: 'sponge', facing: c.tx > c.x ? 1 : -1, overalls: c.slimed > 0 ? '#7DB33E' : undefined });
     for (const m of this.minions) if (m.alive) drawCritter(g, m.x, m.y, 22, 'slime', { t: m.t, seed: m.seed, mood: 'giggle' });
     // the Slime King
     g.save();
@@ -276,13 +277,24 @@ export class BossMechanic extends Mechanic {
       }
     }
     const wob = b.hurt > 0 ? 1 + Math.sin(t * 40) * 0.08 : 1;
+    // dark aura so the translucent King separates from Bosch's busy, bright garden
+    const ag = g.createRadialGradient(b.x, b.y, b.r * 0.4, b.x, b.y, b.r * 1.7);
+    ag.addColorStop(0, 'rgba(18,30,10,0.55)'); ag.addColorStop(0.6, 'rgba(18,30,10,0.3)'); ag.addColorStop(1, 'rgba(18,30,10,0)');
+    g.fillStyle = ag; g.beginPath(); g.arc(b.x, b.y, b.r * 1.7, 0, TAU); g.fill();
     drawCritter(g, b.x, b.y, b.r * wob, 'slime', { t, seed: 5, mood: this.phase >= 3 ? 'surrender' : this.phase === 1 ? 'sleepy' : b.hurt > 0 ? 'panic' : this.phase === 2 ? 'surprised' : 'angry', hat: 'crown', lookX: clamp((this.ptr.x - b.x) / 300, -1, 1), lookY: clamp((this.ptr.y - b.y) / 300, -1, 1) });
     if (this.phase === 0) for (const q of this.pustules) {
       if (q.hp <= 0) continue;
       const pp = this.pustulePos(q);
       const s = 14 + q.hp * 5 + Math.sin(t * 6 + q.a) * 2;
-      g.fillStyle = '#E8F7A0'; g.beginPath(); g.arc(pp.x, pp.y, s, 0, TAU); g.fill();
-      g.fillStyle = 'rgba(255,255,255,0.7)'; g.beginPath(); g.arc(pp.x - s * 0.3, pp.y - s * 0.3, s * 0.3, 0, TAU); g.fill();
+      // glossy amber blister with a pulsing target ring: clearly a thing to tap, not part of the body
+      const ph = (t * 1.4 + q.a) % 1;
+      g.strokeStyle = `rgba(255,214,120,${0.8 * (1 - ph)})`; g.lineWidth = 3;
+      g.beginPath(); g.arc(pp.x, pp.y, s * (1.15 + ph * 0.7), 0, TAU); g.stroke();
+      const bg = g.createRadialGradient(pp.x - s * 0.35, pp.y - s * 0.35, s * 0.1, pp.x, pp.y, s);
+      bg.addColorStop(0, '#FFE7A8'); bg.addColorStop(0.5, '#F2A23C'); bg.addColorStop(1, '#B55A1C');
+      g.fillStyle = bg; g.beginPath(); g.arc(pp.x, pp.y, s, 0, TAU); g.fill();
+      g.strokeStyle = '#6E3410'; g.lineWidth = 2.5; g.stroke();
+      g.fillStyle = 'rgba(255,255,255,0.8)'; g.beginPath(); g.ellipse(pp.x - s * 0.32, pp.y - s * 0.38, s * 0.28, s * 0.18, -0.6, 0, TAU); g.fill();
     }
     if (this.phase === 1) { g.fillStyle = '#F6EFE3'; g.font = '900 36px "Fraunces Variable", serif'; g.fillText('z', b.x + b.r * 0.7, b.y - b.r - Math.sin(t * 2) * 10); }
     g.restore();

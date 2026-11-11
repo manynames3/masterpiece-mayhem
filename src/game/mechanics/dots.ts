@@ -1,7 +1,7 @@
 import { drawPigment, drawWorker, roundRect } from '../../art/characters';
 import type { PointerState } from '../../core/input';
 import { RNG, TAU, dist, hexToRgb, rgbToHex, type Vec } from '../../core/math';
-import { Walker } from '../agents';
+import { Walker, HERO_DRAW_SCALE } from '../agents';
 import { FakePointer, Mechanic, type ToolDef } from '../mechanic';
 
 export interface DotsParams {
@@ -278,7 +278,7 @@ export class DotsMechanic extends Mechanic {
       g.fillText('PIGMENT DEPOT', this.depot.x, this.depot.y + 15);
       for (const w of this.workers) w.draw(g, t);
     } else {
-      drawWorker(g, 60, this.env.H - 30, 38, { t, seed: 7, state: 'idle', tool: 'brush', badge: this.p.palette[this.sel()].color });
+      drawWorker(g, 60, this.env.H - 30, 38 * HERO_DRAW_SCALE, { t, seed: 7, state: 'idle', tool: 'brush', badge: this.p.palette[this.sel()].color });
     }
     // selected colour cursor hint on hover handled by HUD; draw the mixed preview for blend groups
     for (const gr of this.groups) {

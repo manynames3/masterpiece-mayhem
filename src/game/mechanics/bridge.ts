@@ -1,4 +1,5 @@
 import { drawWorker } from '../../art/characters';
+import { HERO_DRAW_SCALE } from '../agents';
 import type { PointerState } from '../../core/input';
 import { TAU, dist, segDist, type Vec } from '../../core/math';
 import { makeBeam, makeNode, maxSag, resetTruss, stepTruss, TRUSS, type TBeam, type TNode } from '../truss';
@@ -267,9 +268,9 @@ export class BridgeMechanic extends Mechanic {
     if (T) {
       const w = this.toLogical(T.settle < 1 ? 0 : T.x, T.settle < 1 ? this.deckRow * PHYS : T.wy);
       const fell = T.result && T.result !== 'crossed';
-      drawWorker(g, w.x, w.y - 6 + (fell ? T.timer * T.timer * 600 : 0), 36, { t, seed: 3, state: fell ? 'scared' : T.result === 'crossed' ? 'cheer' : 'walk', tool: 'bucket', carry: '#E8C46A' });
+      drawWorker(g, w.x, w.y - 6 + (fell ? T.timer * T.timer * 600 : 0), 36 * HERO_DRAW_SCALE, { t, seed: 3, state: fell ? 'scared' : T.result === 'crossed' ? 'cheer' : 'walk', tool: 'bucket', carry: '#E8C46A' });
     } else if (!this.crossed) {
-      drawWorker(g, left.x - 10, left.y - 6, 36, { t, seed: 3, state: 'idle', tool: 'bucket', carry: '#E8C46A' });
+      drawWorker(g, left.x - 10, left.y - 6, 36 * HERO_DRAW_SCALE, { t, seed: 3, state: 'idle', tool: 'bucket', carry: '#E8C46A' });
     }
   }
 

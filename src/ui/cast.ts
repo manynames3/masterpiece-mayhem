@@ -148,6 +148,12 @@ export function createCast(app: App): HTMLElement {
   );
 
   const root = h('div', { class: 'screen map-screen cast-screen', 'data-testid': 'cast-screen' },
+    // the same theatre hall as the main menu: damask wall, velvet side curtains, scalloped valance
+    h('div', { class: 'hall', 'aria-hidden': 'true' },
+      h('div', { class: 'hall-wall' }),
+      h('div', { class: 'hall-curtain l' }),
+      h('div', { class: 'hall-curtain r' }),
+    ),
     h('header', { class: 'map-header' },
       h('button', { class: 'icon-btn', 'aria-label': 'Back to the restoration desk', 'data-testid': 'cast-back', html: icon('back'), onclick: () => app.showTitle() }),
       h('h1', { class: 'display' }, 'Crew & Critters'),

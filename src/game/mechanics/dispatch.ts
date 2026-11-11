@@ -1,4 +1,5 @@
 import { drawCritter, drawFrog, drawWorker, roundRect, type CritterKind, type WorkerTool } from '../../art/characters';
+import { HERO_DRAW_SCALE } from '../agents';
 import type { PointerState } from '../../core/input';
 import { TAU, clamp, damp, dist } from '../../core/math';
 import { FakePointer, Mechanic, type ToolDef } from '../mechanic';
@@ -214,7 +215,7 @@ export class DispatchMechanic extends Mechanic {
       const working = m.phase === 'work';
       const tm = this.p.teams[m.team];
       if (this.p.theme === 'frogs') {
-        drawFrog(g, m.x, m.y, 34, { t: m.t, seed: m.seed, color: tm.color, state: m.phase === 'go' || m.phase === 'back' ? 'hop' : working ? 'work' : 'idle', tool: tm.id });
+        drawFrog(g, m.x, m.y, 34 * HERO_DRAW_SCALE, { t: m.t, seed: m.seed, color: tm.color, state: m.phase === 'go' || m.phase === 'back' ? 'hop' : working ? 'work' : 'idle', tool: tm.id });
         if (working && tm.id === 'tongue') {
           const s = this.spots[m.spot];
           g.strokeStyle = '#E86F5A'; g.lineWidth = 6; g.lineCap = 'round';
@@ -222,7 +223,7 @@ export class DispatchMechanic extends Mechanic {
           g.beginPath(); g.moveTo(m.x, m.y - 22); g.lineTo(m.x + (s.x - m.x) * k, m.y - 22 + (s.y - m.y + 22) * k); g.stroke();
         }
       } else {
-        drawWorker(g, m.x, m.y, 36, { t: m.t, seed: m.seed, state: m.phase === 'go' || m.phase === 'back' ? 'walk' : working ? 'work' : 'idle', tool: tm.tool ?? 'sponge', overalls: tm.color, facing: m.phase === 'back' ? (m.hx > m.x ? 1 : -1) : 1 });
+        drawWorker(g, m.x, m.y, 36 * HERO_DRAW_SCALE, { t: m.t, seed: m.seed, state: m.phase === 'go' || m.phase === 'back' ? 'walk' : working ? 'work' : 'idle', tool: tm.tool ?? 'sponge', overalls: tm.color, facing: m.phase === 'back' ? (m.hx > m.x ? 1 : -1) : 1 });
       }
     }
   }
