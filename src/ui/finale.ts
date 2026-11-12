@@ -23,6 +23,7 @@ export function playFinale(app: App) {
   const sparks: { x: number; y: number; vx: number; vy: number; life: number }[] = [];
   let t = 0, last = performance.now();
   const revealed = new Set<number>();
+  audio.setScene('finale', { ambience: 'fresco', floor: 1 });
   audio.play('fanfare');
   const loop = (now: number) => {
     if (!el.isConnected) return;

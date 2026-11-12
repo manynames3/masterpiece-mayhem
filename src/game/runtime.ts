@@ -270,6 +270,7 @@ export class StageRuntime {
     audio.play('whoosh', { vol: 0.6 });
     this.cam.flyTo(v === 'work' ? this.workView() : this.overviewView(), this.reduced ? 0.25 : 0.7);
     this.input.enabled = v === 'work';
+    audio.setDistance(v === 'overview' ? 1 : 0);
     this.pushHud(true);
   }
 
@@ -291,6 +292,7 @@ export class StageRuntime {
       const c = this.center();
       this.hoverPar = { x: (p.sx - c.x) / this.sw, y: (p.sy - c.y) / this.sh };
     }
+    audio.panHint = Math.max(-1, Math.min(1, (p.sx / Math.max(1, this.sw)) * 2 - 1));
     if (this.paused || this.phase !== 'play' || this.view !== 'work' || this.autoplay) return;
     if (kind === 'down') {
       audio.unlock();
@@ -341,6 +343,7 @@ export class StageRuntime {
   private pushHud(force = false) {
     if (!this.mech) return;
     const m = this.metrics();
+    audio.setIntensity(clamp(m.progress ?? 0));
     this.cb.onHud({
       objectives: this.objectiveViews(m),
       progress: clamp(m.progress ?? 0),
@@ -407,7 +410,7 @@ export class StageRuntime {
     this.mech.onComplete();
     this.setPhase('celebrate');
     this.celebrateTimer = 0;
-    audio.play(this.stage.boss ? 'fanfare' : 'success');
+    audio.cue(this.stage.boss ? 'bigWin' : 'win');
     this.haptic(40);
     for (const c of this.crew) { c.path = []; c.state = 'cheer'; }
     for (let i = 0; i < (this.stage.boss ? 120 : 60); i++) {
@@ -440,6 +443,7 @@ export class StageRuntime {
     this.input.enabled = false;
     audio.stopLoops();
     audio.play('thud');
+    audio.cue('fail');
     this.cb.onFail(msg);
   }
 

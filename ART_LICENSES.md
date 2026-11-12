@@ -31,3 +31,14 @@ The Tiny Restorers, the Grimelings, grime textures, tools, props, particles, ico
 
 ## Disclaimer
 Masterpiece Mayhem is a fantasy. Nothing in it is real-world conservation advice: never scrub, wash, peel, polish or spray a real painting. Leave that to trained conservators.
+
+## Music and sound (`public/audio/*.mp3`)
+The score (`src/core/music.ts`) and all sound design (`src/core/audio.ts`) are original to this project. The instrument and foley recordings they play are **CC0 1.0 (public domain dedication)**. Each file is trimmed, peak-normalised and re-encoded to mono MP3; `src/core/audioAssets.ts` lists every file with its measured pitch.
+
+| Source | Licence | Used for |
+|---|---|---|
+| **Versilian Studios Chamber Orchestra 2 – Community Edition** (VSCO 2 CE), https://github.com/sgossner/VSCO-2-CE | CC0 1.0 (`LICENSE` in that repository) | Harp, glockenspiel, marimba, violin and cello pizzicato, bassoon, flute, clarinet, French horn, upright piano, timpani, triangle, wind chimes, claves, wood blocks, slit drum, slapstick, guiro, ratchet, flexatone, vibraslap, maracas, cabasa, sleigh bells, cymbal swell, bubbles, brick scrape, zap |
+| **Kenney – RPG Audio** (via the Godot port https://github.com/Boyquotes/kenney-rpg-audio-for-godot; original at https://kenney.nl/assets/rpg-audio) | CC0 1.0 | Cloth, creaks, page flips, book thuds, coins, metal click and latch, chop, leather drop, knife slice, footsteps |
+| **Kenney – UI Audio** (via https://github.com/ismetcabbar9-oss/kenney-audio-assets; original at https://kenney.nl/assets/ui-audio) | CC0 1.0 | UI clicks and switches |
+
+CC0 needs no attribution, but credit is given here and in the in-game credits as thanks. Some sounds (sponge squelch, vacuum motor, Grimeling voices, splashes) are built in code by layering and processing these recordings with synthesis.

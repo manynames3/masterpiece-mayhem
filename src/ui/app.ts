@@ -1,4 +1,5 @@
 import { audio } from '../core/audio';
+import { sceneForStage } from '../core/music';
 import { SaveStore } from '../core/save';
 import { PAINTINGS, PAINTING_ORDER, thumbUrl } from '../art/paintings';
 import { GALLERIES } from '../data/galleries';
@@ -39,14 +40,16 @@ export class App {
     this.root.append(el);
   }
 
-  showTitle() { this.mount(createTitle(this)); }
-  showMap(focusStage?: number) { this.mount(createMap(this, focusStage)); }
-  showCast() { this.mount(createCast(this)); }
+  showTitle() { audio.setScene('menu'); this.mount(createTitle(this)); }
+  showMap(focusStage?: number) { audio.setScene('menu'); this.mount(createMap(this, focusStage)); }
+  showCast() { audio.setScene('menu'); this.mount(createCast(this)); }
 
   playStage(id: number) {
     const stage = getStage(id);
     if (!stage || !this.save.isUnlocked(id)) { this.showMap(); return; }
     audio.unlock();
+    audio.setScene(sceneForStage(stage.gallery, stage.mechanic.type, stage.id), { ambience: stage.visual.ambience ?? 'warm', floor: stage.boss ? 0.35 : 0 });
+    audio.setIntensity(0);
     this.save.notePlay(id);
     const s = createStageScreen(this, stage);
     this.mount(s.el);
@@ -190,7 +193,7 @@ export class App {
     };
     return [
       row('Sound effects', 'Squishes, pops and chimes', 'sound', (v) => audio.setSound(v)),
-      row('Music', 'Gentle music-box ambience', 'music', (v) => audio.setMusic(v)),
+      row('Music', 'A hand-played theme for every gallery', 'music', (v) => audio.setMusic(v)),
       row('Reduced motion', 'Calmer camera, fewer particles', 'reducedMotion', (v) => document.documentElement.classList.toggle('reduced-motion', v)),
       row('Haptics', 'Vibration on supported phones', 'haptics', () => undefined),
     ];
@@ -229,7 +232,7 @@ export class App {
       h('button', { class: 'card-close', 'aria-label': 'Close', html: icon('close'), onclick: () => this.closeModal() }),
       h('div', { class: 'eyebrow' }, 'Credits'),
       h('h2', { class: 'display' }, 'The masterpieces'),
-      h('p', { class: 'credits' }, 'All ten works are centuries old and in the public domain; the reproductions are Wikimedia Commons files marked public domain. Crew, critters, grime, tools and UI are original procedural art. Fonts: Fraunces & Nunito (SIL Open Font License). See ART_LICENSES.md for details and caveats.'),
+      h('p', { class: 'credits' }, 'All ten works are centuries old and in the public domain; the reproductions are Wikimedia Commons files marked public domain. Crew, critters, grime, tools and UI are original procedural art. Fonts: Fraunces & Nunito (SIL Open Font License). Music and sound are original, played from CC0 recordings by Versilian Studios (VSCO 2 Community Edition) and Kenney. See ART_LICENSES.md for details and caveats.'),
       h('ul', { class: 'credits' }, ...items),
       h('p', { class: 'credits' }, 'Masterpiece Mayhem is a fantasy. Never clean a real painting — leave that to trained conservators!'),
     );
@@ -252,6 +255,7 @@ export class App {
         return r ? { phase: r.phase, metrics: r.metrics(), objectives: r.objectiveViews() } : null;
       },
       save: () => this.save.data,
+      audio,
     };
   }
 }
