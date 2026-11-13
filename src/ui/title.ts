@@ -101,7 +101,7 @@ export function createTitle(app: App): HTMLElement {
     ),
     h('div', { class: 'menu-layout' }, brand, sceneEl, nav),
     h('footer', { class: 'menu-foot' },
-      'A fantasy game — never clean a real painting! Public-domain reproductions via Wikimedia Commons. ',
+      'A fantasy game: never clean a real painting! ',
       h('button', { onclick: () => app.openParents() }, 'For parents & teachers'),
       ' · ',
       h('button', { onclick: () => app.openCredits() }, 'Art credits'),

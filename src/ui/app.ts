@@ -130,7 +130,7 @@ export class App {
       starsRow.append(sv);
     }
     const ba = r.before && r.after ? beforeAfter(r.before, r.after) : null;
-    const shareButton = h('button', { class: 'btn secondary icon-only', 'data-testid': 'share', 'aria-label': 'Share my restoration', title: 'Share my restoration', html: icon('share') });
+    const shareButton = h('button', { class: 'btn secondary icon-only', 'data-testid': 'share', 'aria-label': 'Share my restoration', title: 'Share my restoration', html: `${icon('share')}<span>Share</span>` });
     shareButton.addEventListener('click', async () => {
       if (!r.before || !r.after || shareButton.disabled) return;
       shareButton.disabled = true;
@@ -139,7 +139,7 @@ export class App {
       const res = await shareRestoration({ before: r.before, after: r.after, painting: p.title, artist: `${p.artist}, ${p.year}`, stars: r.stars });
       shareButton.disabled = false;
       shareButton.classList.remove('busy');
-      shareButton.innerHTML = icon(res === 'downloaded' ? 'check' : 'share');
+      shareButton.innerHTML = `${icon(res === 'downloaded' ? 'check' : 'share')}<span>${res === 'downloaded' ? 'Saved' : 'Share'}</span>`;
     });
     const actions = h('div', { class: 'card-actions' });
     if (st.id === 30) {
@@ -153,12 +153,12 @@ export class App {
       h('button', {
         class: `btn secondary icon-only ${pageWasOpen ? '' : 'new'}`, 'data-testid': 'open-notebook-page',
         'aria-label': pageWasOpen ? 'Notebook page' : 'New notebook page!', title: pageWasOpen ? 'Notebook page' : 'New notebook page!',
-        onclick: () => openPage(this, st.painting, !pageWasOpen), html: icon('book'),
+        onclick: () => openPage(this, st.painting, !pageWasOpen), html: `${icon('book')}<span>${pageWasOpen ? 'Notes' : 'New!'}</span>`,
       }),
       r.before && r.after ? shareButton : null,
     ));
     const card = h('div', { class: 'card results', 'data-testid': 'results', 'data-stars': r.stars },
-      h('div', { class: 'eyebrow', style: 'text-align:center' }, `Stage ${st.id} · ${PAINTINGS[st.painting].title}`),
+      h('div', { class: 'eyebrow', style: 'text-align:center' }, `Stage ${st.id} · ${PAINTINGS[st.painting].short}`),
       h('h2', { class: 'display' }, st.boss ? 'Masterpiece restored!' : 'Restored!'),
       starsRow,
       h('ul', { class: 'criteria' }, ...r.starResults.map((s) => h('li', { class: s.ok ? 'ok' : 'no', html: `${icon(s.ok ? 'check' : 'x')}<span>${s.label}</span>` }))),
@@ -252,7 +252,7 @@ export class App {
         h('button', { class: 'btn secondary small', onclick: () => this.openCredits() }, 'Art credits & licences'),
         resetBtn,
       ),
-      h('p', { style: 'font-size:12px;margin-top:14px;opacity:.75' }, `Progress saves automatically on this device. Collection: ${this.save.data.collection.length} badges.`),
+      h('p', { style: 'font-size:12px;margin-top:14px;color:#5a3a28' }, `Progress saves automatically on this device. Collection: ${this.save.data.collection.length} badges.`),
     );
     this.openModal(card);
   }
