@@ -93,7 +93,6 @@ export function openPage(app: App, id: PaintingId, isNew = false) {
     ),
     h('ol', { class: 'nb-facts' }, ...n.facts.map((f) => h('li', null, f))),
     h('dl', { class: 'nb-meta' },
-      h('dt', null, 'Made with'), h('dd', null, n.medium),
       h('dt', null, 'Size'), h('dd', null, n.size),
       h('dt', null, 'See it for real'), h('dd', null, n.where),
     ),

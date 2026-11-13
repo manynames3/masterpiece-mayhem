@@ -687,19 +687,6 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--gold-b
   .lc-nav { justify-content: space-between; }
 }
 
-/* results: restorer note + extras */
-.restorer-note { margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(47, 143, 139, 0.1); box-shadow: 0 0 0 1px rgba(47, 143, 139, 0.25) inset; }
-.rn-label { font-size: 11.5px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; color: #22706c; }
-.rn-label b { color: var(--chocolate); }
-.restorer-note p { margin: 3px 0 0 !important; font-size: 13.5px; line-height: 1.4; color: var(--chocolate) !important; font-weight: 650; }
-.result-extras { display: flex; gap: 8px; margin-top: 10px; }
-.result-extras .btn { flex: 1 1 0; min-height: 42px; font-size: 14px; padding: 0 12px; }
-.result-extras .btn.new { background: linear-gradient(180deg, #f7dc8d, var(--gold-bright)); color: var(--chocolate); box-shadow: 0 -2px 0 rgba(120, 80, 20, 0.3) inset, 0 0 0 2px rgba(138, 101, 36, 0.4); animation: obj-pop 0.6s 0.8s var(--ease-spring) both; }
-@media (max-height: 860px) {
-  .results .restorer-note { margin-top: 8px; padding: 8px 10px; }
-  .results .restorer-note p { font-size: 12.5px; }
-}
-
 /* parents & teachers */
 .parents p { font-size: 14.5px; }
 .pt-sec { margin-top: 12px; }
@@ -714,4 +701,24 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--gold-b
 .menu-notebook:hover { background: rgba(246, 239, 227, 0.12); }
 
 .nb-page .card-actions .btn { flex: 1 1 120px; white-space: nowrap; padding: 0 14px; }
-.result-extras .btn { white-space: nowrap; }
+
+/* results v2.1: one reward+tip strip, one row of secondary actions */
+.results .reward p { margin: 2px 0 0 !important; font-size: 13px; line-height: 1.35; color: var(--cocoa) !important; font-weight: 650; }
+.results .reward .reward-name b { display: inline; font-size: 15px; }
+.results .reward .rn-label { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #22706c; font-weight: 900; }
+.results .card-actions { flex-direction: column; }
+.results .card-actions > .btn { width: 100%; }
+.result-row { display: flex; gap: 8px; }
+.result-row .btn { flex: 1 1 0; min-width: 0; padding: 0 10px; white-space: nowrap; }
+.results .result-row .btn { flex: 1 1 0; }
+.results .result-row .btn.icon-only { flex: 0 0 52px; padding: 0; position: relative; }
+.result-row .btn svg { flex: none; }
+.result-row .btn.icon-only svg { width: 22px; height: 22px; }
+.results .result-row .btn.secondary.icon-only.new { background: linear-gradient(180deg, #f7dc8d, var(--gold-bright)); box-shadow: 0 -2px 0 rgba(120, 80, 20, 0.3) inset, 0 0 0 2px rgba(138, 101, 36, 0.4); animation: obj-pop 0.6s 0.8s var(--ease-spring) both; }
+.result-row .btn.icon-only.new::after { content: ''; position: absolute; top: 6px; right: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--coral); box-shadow: 0 0 0 2px var(--ivory); }
+.result-row .btn.busy svg { animation: spin 0.9s linear infinite; }
+@media (max-width: 560px) {
+  .results .criteria { display: none; }
+  .results .result-row .btn.icon-only { flex-basis: 48px; }
+  .results .result-row { gap: 6px; }
+}

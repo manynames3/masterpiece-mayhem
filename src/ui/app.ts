@@ -130,15 +130,16 @@ export class App {
       starsRow.append(sv);
     }
     const ba = r.before && r.after ? beforeAfter(r.before, r.after) : null;
-    const shareButton = h('button', { class: 'btn secondary small', 'data-testid': 'share', html: `${icon('share')} Share` });
+    const shareButton = h('button', { class: 'btn secondary icon-only', 'data-testid': 'share', 'aria-label': 'Share my restoration', title: 'Share my restoration', html: icon('share') });
     shareButton.addEventListener('click', async () => {
       if (!r.before || !r.after || shareButton.disabled) return;
       shareButton.disabled = true;
-      shareButton.innerHTML = 'Making your clip…';
+      shareButton.classList.add('busy');
       const p = PAINTINGS[st.painting];
       const res = await shareRestoration({ before: r.before, after: r.after, painting: p.title, artist: `${p.artist}, ${p.year}`, stars: r.stars });
       shareButton.disabled = false;
-      shareButton.innerHTML = `${icon('share')} ${res === 'downloaded' ? 'Saved!' : 'Share'}`;
+      shareButton.classList.remove('busy');
+      shareButton.innerHTML = icon(res === 'downloaded' ? 'check' : 'share');
     });
     const actions = h('div', { class: 'card-actions' });
     if (st.id === 30) {
@@ -146,10 +147,16 @@ export class App {
     } else if (next) {
       actions.append(h('button', { class: 'btn', 'data-testid': 'next-stage', onclick: () => this.playStage(nextId), html: `Next: ${next.title} ${icon('next')}` }));
     }
-    actions.append(
+    actions.append(h('div', { class: 'result-row' },
       h('button', { class: 'btn secondary', 'data-testid': 'replay', onclick: () => this.playStage(st.id), html: `${icon('replay')} Replay` }),
       h('button', { class: 'btn secondary', 'data-testid': 'to-map', onclick: () => this.showMap(nextId), html: `${icon('map')} Map` }),
-    );
+      h('button', {
+        class: `btn secondary icon-only ${pageWasOpen ? '' : 'new'}`, 'data-testid': 'open-notebook-page',
+        'aria-label': pageWasOpen ? 'Notebook page' : 'New notebook page!', title: pageWasOpen ? 'Notebook page' : 'New notebook page!',
+        onclick: () => openPage(this, st.painting, !pageWasOpen), html: icon('book'),
+      }),
+      r.before && r.after ? shareButton : null,
+    ));
     const card = h('div', { class: 'card results', 'data-testid': 'results', 'data-stars': r.stars },
       h('div', { class: 'eyebrow', style: 'text-align:center' }, `Stage ${st.id} · ${PAINTINGS[st.painting].title}`),
       h('h2', { class: 'display' }, st.boss ? 'Masterpiece restored!' : 'Restored!'),
@@ -160,16 +167,12 @@ export class App {
         h('b', null, r.score.toLocaleString()),
       ),
       ba ? h('div', { class: 'ba-wrap', style: `--ar:${r.after!.width / r.after!.height}` }, ba) : null,
-      h('div', { class: 'reward' }, h('span', { class: 'medal', html: icon('medal') }), h('div', null, h('b', null, st.reward.collectible), st.reward.note)),
-      (() => {
-        const note = restorerNote(st.id, st.mechanic.type);
-        return h('div', { class: 'restorer-note', 'data-testid': 'restorer-note' },
-          h('div', { class: 'rn-label' }, 'Real restorer tip · ', h('b', null, note.principle)),
-          h('p', null, note.text));
-      })(),
-      h('div', { class: 'result-extras' },
-        h('button', { class: `btn secondary small ${pageWasOpen ? '' : 'new'}`, 'data-testid': 'open-notebook-page', onclick: () => openPage(this, st.painting, !pageWasOpen), html: `${icon('book')} ${pageWasOpen ? 'Notebook' : 'New page!'}` }),
-        r.before && r.after ? shareButton : null,
+      h('div', { class: 'reward', 'data-testid': 'restorer-note' },
+        h('span', { class: 'medal', html: icon('medal') }),
+        h('div', null,
+          h('div', { class: 'reward-name' }, h('b', null, st.reward.collectible), h('span', { class: 'rn-label' }, ` · Restorer tip`)),
+          h('p', null, restorerNote(st.id, st.mechanic.type).text),
+        ),
       ),
       galleryDone ? h('div', { class: 'gallery-banner' }, h('span', { class: 'display' }, `${GALLERIES[st.gallery - 1].name} complete!`), `Gallery ${['II', 'III', 'IV', 'V'][st.gallery - 1]} — ${GALLERIES[st.gallery].name} — is now open.`) : null,
       actions,
