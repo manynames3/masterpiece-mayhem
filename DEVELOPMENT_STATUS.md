@@ -1,4 +1,17 @@
-# Development status — 2026-10-25
+# Development status — 2026-11-13
+
+## Audio rebuild — 2026-11-12 (live in production, commit `91618ee`)
+- Replaced the synthesized beeps and random-note music with sampled instruments and recorded foley. Engine: `src/core/audio.ts`; score: `src/core/music.ts`; asset list with measured pitches: `src/core/audioAssets.ts`; files: `public/audio/` (145 CC0 recordings, 3.2 MB mono MP3, loaded per gallery). Sources are credited in `ART_LICENSES.md` and the in-game credits.
+- Music: one original 3/4 theme arranged for the menu, each of the five galleries, the King Gloopus fight (minor-key march) and the finale. Layers bloom with progress; win, big-win and fail cues resolve in key; stage ambience picks the room reverb.
+- SFX: layered recipes with random variation, tonal sounds in the music's key, granular work loops (scrub, peel, spray, flow) and a vacuum motor, formant voices for the Grimelings, stereo from the touch position, effects compression and density ducking.
+- Verified: 34 unit tests (new `tests/unit/music.test.ts`: every arrangement in key, no sample stretched beyond a fifth), 12/12 Playwright, build. Audio was recorded from headless Chromium: arrangements level-matched to about -25 LUFS (boss and finale about -23), busy gameplay -15 to -19 LUFS with no clipping, pitch content of each arrangement matches its key. Stages 1, 12 and 24 autoplayed to a win with the right arrangement and no errors.
+- Not verified: nobody on the team has listened on real phones yet. Decoded audio reaches roughly 30-45 MB of memory once every gallery has been visited, which is fine on current devices but heavy on old ones.
+
+## Visual polish — 2026-11-11
+- In-game HUD restyled as walnut panels with gilt trim; zoomed-in playfield framed in a gilt mat on a dark wall; custom SVG faces replace the emoji in the Botch meter, curse banner and results medal; tool labels wrap instead of truncating; tutorial card relaid out; map thumbnails, stars and scroll offset fixed; results card fits short screens and its "after" image is the clean painting.
+- Heroes drawn 1.4x larger in play with a soft spotlight (hit areas unchanged); frogs moved to the felt-and-clay material; Slime King gets an aura and amber target pustules; boat-runner water, courier and crack lines, algae, varnish film and pipe channels redrawn; Crew & Critters page uses the title screen's theatre hall.
+- README screenshots refreshed on 2026-11-13.
+
 
 ## Main menu redesign (Design #4) — 2026-10-25 afternoon
 - New gallery-hall main menu (`src/ui/title.ts`, `src/ui/menu/scene.ts`, `src/styles/menu.css`). Rationale, limitations and the visual QA log are in `menu-ui-notes.md`.
