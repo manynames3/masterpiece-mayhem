@@ -1,4 +1,7 @@
 import { audio } from '../core/audio';
+import { restorerNote } from '../data/notebook';
+import { createNotebook, openPage, pageUnlocked } from './notebook';
+import { shareRestoration } from './share';
 import { sceneForStage } from '../core/music';
 import { SaveStore } from '../core/save';
 import { PAINTINGS, PAINTING_ORDER, thumbUrl } from '../art/paintings';
@@ -43,6 +46,7 @@ export class App {
   showTitle() { audio.setScene('menu'); this.mount(createTitle(this)); }
   showMap(focusStage?: number) { audio.setScene('menu'); this.mount(createMap(this, focusStage)); }
   showCast() { audio.setScene('menu'); this.mount(createCast(this)); }
+  showNotebook() { audio.setScene('menu'); this.mount(createNotebook(this)); }
 
   playStage(id: number) {
     const stage = getStage(id);
@@ -59,7 +63,12 @@ export class App {
   get runtime() { return this.stageScreen?.runtime ?? null; }
 
   // ------------------------------------------------------------------ modals
-  closeModal() { this.modal?.remove(); this.modal = null; }
+  closeModal() {
+    this.modal?.remove(); this.modal = null;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+  }
+
+  showModal(card: HTMLElement) { return this.openModal(card); }
 
   private openModal(card: HTMLElement, dismissable = true) {
     this.closeModal();
@@ -109,6 +118,7 @@ export class App {
   openResults(r: StageResult) {
     const st = r.stage;
     const prevBest = this.save.record(st.id).bestScore;
+    const pageWasOpen = pageUnlocked(this.save, st.painting);
     this.save.completeStage(st.id, r.stars, r.score, r.curses, st.reward.collectible);
     const nextId = st.id + 1;
     const next = getStage(nextId);
@@ -120,6 +130,16 @@ export class App {
       starsRow.append(sv);
     }
     const ba = r.before && r.after ? beforeAfter(r.before, r.after) : null;
+    const shareButton = h('button', { class: 'btn secondary small', 'data-testid': 'share', html: `${icon('share')} Share` });
+    shareButton.addEventListener('click', async () => {
+      if (!r.before || !r.after || shareButton.disabled) return;
+      shareButton.disabled = true;
+      shareButton.innerHTML = 'Making your clip…';
+      const p = PAINTINGS[st.painting];
+      const res = await shareRestoration({ before: r.before, after: r.after, painting: p.title, artist: `${p.artist}, ${p.year}`, stars: r.stars });
+      shareButton.disabled = false;
+      shareButton.innerHTML = `${icon('share')} ${res === 'downloaded' ? 'Saved!' : 'Share'}`;
+    });
     const actions = h('div', { class: 'card-actions' });
     if (st.id === 30) {
       actions.append(h('button', { class: 'btn', onclick: () => { this.closeModal(); playFinale(this); } }, 'Watch the Final Touch'));
@@ -141,6 +161,16 @@ export class App {
       ),
       ba ? h('div', { class: 'ba-wrap', style: `--ar:${r.after!.width / r.after!.height}` }, ba) : null,
       h('div', { class: 'reward' }, h('span', { class: 'medal', html: icon('medal') }), h('div', null, h('b', null, st.reward.collectible), st.reward.note)),
+      (() => {
+        const note = restorerNote(st.id, st.mechanic.type);
+        return h('div', { class: 'restorer-note', 'data-testid': 'restorer-note' },
+          h('div', { class: 'rn-label' }, 'Real restorer tip · ', h('b', null, note.principle)),
+          h('p', null, note.text));
+      })(),
+      h('div', { class: 'result-extras' },
+        h('button', { class: `btn secondary small ${pageWasOpen ? '' : 'new'}`, 'data-testid': 'open-notebook-page', onclick: () => openPage(this, st.painting, !pageWasOpen), html: `${icon('book')} ${pageWasOpen ? 'Notebook' : 'New page!'}` }),
+        r.before && r.after ? shareButton : null,
+      ),
       galleryDone ? h('div', { class: 'gallery-banner' }, h('span', { class: 'display' }, `${GALLERIES[st.gallery - 1].name} complete!`), `Gallery ${['II', 'III', 'IV', 'V'][st.gallery - 1]} — ${GALLERIES[st.gallery].name} — is now open.`) : null,
       actions,
     );
@@ -215,10 +245,44 @@ export class App {
       h('h2', { class: 'display' }, 'Settings'),
       h('div', { class: 'settings-list' }, ...this.settingRows()),
       h('div', { class: 'card-actions' },
+        h('button', { class: 'btn secondary small', 'data-testid': 'open-parents', onclick: () => this.openParents() }, 'For parents & teachers'),
         h('button', { class: 'btn secondary small', onclick: () => this.openCredits() }, 'Art credits & licences'),
         resetBtn,
       ),
       h('p', { style: 'font-size:12px;margin-top:14px;opacity:.75' }, `Progress saves automatically on this device. Collection: ${this.save.data.collection.length} badges.`),
+    );
+    this.openModal(card);
+  }
+
+  openParents() {
+    audio.play('tap');
+    const sec = (title: string, ...items: (string | HTMLElement)[]) => h('section', { class: 'pt-sec' }, h('h3', { class: 'display' }, title), ...items);
+    const ul = (...xs: string[]) => h('ul', null, ...xs.map((x) => h('li', null, x)));
+    const card = h('div', { class: 'card parents', 'data-testid': 'parents' },
+      h('button', { class: 'card-close', 'aria-label': 'Close', html: icon('close'), onclick: () => this.closeModal() }),
+      h('div', { class: 'eyebrow' }, 'For grown-ups'),
+      h('h2', { class: 'display' }, 'Parents & teachers'),
+      h('p', null, 'Masterpiece Mayhem is a free art-history adventure. Players restore ten real public-domain masterpieces with a tiny cartoon crew, and collect a Conservator\'s Notebook of real facts as they go. It suits ages 7 to 12 best; younger players may want a grown-up to read along.'),
+      sec('Safe by design', ul(
+        'No ads, no in-app purchases, no loot boxes.',
+        'No accounts, no chat, nothing posted online by the game.',
+        'No tracking or analytics scripts. Progress is saved only in this browser on this device.',
+        'Sharing a clip only happens when the player taps Share, through your device\'s own share sheet.',
+        'Like any website, the hosting provider keeps standard server logs.',
+      )),
+      sec('What players learn', ul(
+        'Who made ten famous works, when, how, and where to see them in real life.',
+        'How artists worked: sfumato, ultramarine, woodblock printing, pointillism, glazes and fresco.',
+        'How real conservators think: test first, do no harm, keep repairs reversible and write everything down.',
+        'Problem-solving: routing, light and mirror puzzles, colour mixing and simple bridge forces.',
+      )),
+      sec('In the classroom', ul(
+        'Each stage takes 1 to 3 minutes, which makes a good lesson opener.',
+        'Put a notebook page\'s Look closer view on the projector and let the class find the details.',
+        'Discussion prompts: Why do restorers test a tiny spot first? Why should a repair be removable? Which painting would you most like to see in person, and where is it?',
+      )),
+      sec('Settings that help', ul('Sound effects, music and reduced motion can each be switched off in Settings.', 'Keyboard controls: Esc pauses, Z zooms, H gives a hint, 1–9 pick tools.')),
+      h('p', { class: 'credits' }, 'A friendly reminder for young restorers: this is a fantasy. Never clean a real painting; leave that to trained conservators.'),
     );
     this.openModal(card);
   }

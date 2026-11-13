@@ -3,6 +3,11 @@ const s = (body: string, vb = '0 0 24 24') =>
 const f = (body: string, vb = '0 0 24 24') => `<svg viewBox="${vb}" fill="currentColor" aria-hidden="true">${body}</svg>`;
 
 export const ICONS: Record<string, string> = {
+  book: s('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M8 7.5h8M8 11h6"/>'),
+  share: s('<path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>'),
+  eye: s('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3.2"/>'),
+  shield: s('<path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>'),
+  prev: s('<path d="M15 5l-7 7 7 7"/>'),
   // Botch-meter faces: clay-gold buttons in the cast's face kit (replaces system emoji)
   faceCalm: f('<circle cx="12" cy="12" r="10" fill="#F2C46A" stroke="#8A6524" stroke-width="1.4"/><ellipse cx="9" cy="8.5" rx="4" ry="2.4" fill="#FFF1C2" opacity=".55"/><circle cx="8.6" cy="11" r="1.5" fill="#23150D"/><circle cx="15.4" cy="11" r="1.5" fill="#23150D"/><circle cx="6.8" cy="14" r="1.4" fill="#E86F5A" opacity=".45"/><circle cx="17.2" cy="14" r="1.4" fill="#E86F5A" opacity=".45"/><path d="M9 14.6c1.6 1.7 4.4 1.7 6 0" stroke="#23150D" stroke-width="1.5" fill="none" stroke-linecap="round"/>'),
   faceSweat: f('<circle cx="12" cy="12" r="10" fill="#F2C46A" stroke="#8A6524" stroke-width="1.4"/><ellipse cx="9" cy="8.5" rx="4" ry="2.4" fill="#FFF1C2" opacity=".55"/><circle cx="8.6" cy="11" r="1.5" fill="#23150D"/><circle cx="15.4" cy="11" r="1.5" fill="#23150D"/><path d="M9 15.6h6" stroke="#23150D" stroke-width="1.5" stroke-linecap="round"/><path d="M19 4.5c1.3 1.8 2 2.9 2 3.8a2 2 0 0 1-4 0c0-.9.7-2 2-3.8z" fill="#9BC6E0" stroke="#3A6EA5" stroke-width=".8"/>'),

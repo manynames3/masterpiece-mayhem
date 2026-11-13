@@ -1,6 +1,8 @@
 import { PAINTINGS, thumbUrl } from '../art/paintings';
 import { audio } from '../core/audio';
 import type { App } from './app';
+import { ICONS } from './icons';
+import { pagesUnlocked } from './notebook';
 import { h } from './dom';
 import { mountMenuScene } from './menu/scene';
 import { STAGE_COUNT, getStage } from '../data/stages';
@@ -69,7 +71,7 @@ export function createTitle(app: App): HTMLElement {
     ),
     h('div', { class: 'menu-meta' },
       h('span', { html: `<b>${stars}</b>/90 ${I.star}` }),
-      h('span', { html: `<b>10</b> masterpieces` }),
+      h('button', { class: 'menu-notebook', 'data-testid': 'open-notebook', onclick: () => app.showNotebook(), html: `${ICONS.book} Notebook <b>${pagesUnlocked(app.save)}</b>/10` }),
     ),
   );
   // arrow keys walk the menu
@@ -100,6 +102,8 @@ export function createTitle(app: App): HTMLElement {
     h('div', { class: 'menu-layout' }, brand, sceneEl, nav),
     h('footer', { class: 'menu-foot' },
       'A fantasy game — never clean a real painting! Public-domain reproductions via Wikimedia Commons. ',
+      h('button', { onclick: () => app.openParents() }, 'For parents & teachers'),
+      ' · ',
       h('button', { onclick: () => app.openCredits() }, 'Art credits'),
     ),
     h('div', { class: 'menu-vignette', 'aria-hidden': 'true' }),

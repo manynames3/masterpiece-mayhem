@@ -3,6 +3,7 @@ import { GALLERIES } from '../data/galleries';
 import { STAGE_COUNT, getStage } from '../data/stages';
 import type { App } from './app';
 import { h } from './dom';
+import { openPage, pageUnlocked } from './notebook';
 import { icon } from './icons';
 
 export function starIcons(n: number, max = 3) {
@@ -62,6 +63,7 @@ export function createMap(app: App, focusStage?: number): HTMLElement {
           h('h3', { class: 'display' }, def.title),
           h('div', { class: 'artist' }, `${def.artist} · ${def.year}`),
           row,
+          pageUnlocked(save, pid) ? h('button', { class: 'nb-chip', onclick: () => openPage(app, pid), html: `${icon('book')} Notebook page` }) : null,
         ),
       ));
     }
@@ -73,6 +75,7 @@ export function createMap(app: App, focusStage?: number): HTMLElement {
       h('button', { class: 'icon-btn', 'aria-label': 'Back to the restoration desk', html: icon('back'), onclick: () => app.showTitle() }),
       h('h1', { class: 'display' }, 'The Grand Gallery'),
       h('div', { class: 'star-total', 'aria-label': 'Total stars', html: `${icon('star')} ${save.totalStars()}<span style="opacity:.55">/90</span>` }),
+      h('button', { class: 'icon-btn', 'aria-label': "Conservator's Notebook", 'data-testid': 'map-notebook', html: icon('book'), onclick: () => app.showNotebook() }),
       h('button', { class: 'icon-btn', 'aria-label': 'Settings', html: icon('settings'), onclick: () => app.openSettings() }),
     ),
     scroll,

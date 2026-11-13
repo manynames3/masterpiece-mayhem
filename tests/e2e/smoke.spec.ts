@@ -115,3 +115,33 @@ test('QA autoplay can finish stage 1 and open results', async ({ page }) => {
   await page.evaluate(() => (window as any).__MM.autoplay(true));
   await expect(page.getByTestId('results')).toBeVisible({ timeout: 45_000 });
 });
+
+test('Conservator\'s Notebook: pages unlock from progress, open, and "look closer" zooms in', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.goto('/');
+  await page.evaluate(() => (window as any).__MM.app.save.completeStage(4, 3, 1200, 0, 'test'));
+  await page.goto('/');
+  await expect(page.getByTestId('open-notebook')).toContainText('1');
+  await page.getByTestId('open-notebook').click();
+  await expect(page.getByTestId('notebook')).toBeVisible();
+  // Mona Lisa is locked, The Night Watch (stage 4) is unlocked
+  await expect(page.locator('.nb-tile[data-page="mona-lisa"]')).toBeDisabled();
+  await page.locator('.nb-tile[data-page="night-watch"]').click();
+  await expect(page.getByTestId('notebook-page')).toContainText('It is not really a night picture!');
+  await page.getByTestId('look-closer').click();
+  const view = page.getByTestId('look-closer-view');
+  await expect(view).toBeVisible();
+  await view.locator('.lc-dot').first().click();
+  await expect(view).toHaveClass(/zoomed/);
+  await expect(view.locator('.lc-caption')).toContainText('The captain');
+  await page.keyboard.press('Escape');
+  await expect(view).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('parents & teachers page opens from Settings', async ({ page }) => {
+  await page.goto('/');
+  await page.getByTestId('open-settings').click();
+  await page.getByTestId('open-parents').click();
+  await expect(page.getByTestId('parents')).toContainText('No ads');
+});
