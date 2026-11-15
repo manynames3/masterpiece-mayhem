@@ -1,4 +1,18 @@
-# Development status — 2026-11-13
+# Development status — 2026-11-15
+
+## Typography and buttons — 2026-11-14 (live, commit `df921c5`)
+- Six-step type scale (12–22px) replaces about 30 ad-hoc sizes; nothing a player reads is below 12px. Higher contrast on faint text; tabular digits for scores.
+- One press-down feel for every button; solid secondary buttons; labelled icon buttons on the results card; 42px chips.
+- Verified: 65 unit tests, 16/16 Playwright runs; title, results, notebook, settings, HUD and map screenshot-checked at 1280×800, 390×844 and 375×667.
+
+## v2: learning for kids, parents and teachers — 2026-11-13 (live, commit `5fbbe6f`)
+- Conservator's Notebook (`src/data/notebook.ts`, `src/ui/notebook.ts`): a page per painting unlocks when any of its stages is restored; three short facts, size, where to see it, three "look closer" hotspots, read-aloud via the device voice.
+- Results card: one-line real restorer tip per stage type; Notebook and Share buttons; the card fits 375×667 without scrolling.
+- Share (`src/ui/share.ts`): a 4-second before/after clip rendered in the browser and passed to the device share sheet, or downloaded; still image where recording isn't supported.
+- Parents & teachers page: safety facts (no ads, purchases, accounts, analytics), what players learn, classroom use.
+- Reading level enforced by `tests/unit/notebook.test.ts`: kid text averages 8.3 words per sentence, Flesch–Kincaid grade 2.5.
+- Not verified: the 30 facts need review by a teacher; share and read-aloud untested on real phones.
+
 
 ## Audio rebuild — 2026-11-12 (live in production, commit `91618ee`)
 - Replaced the synthesized beeps and random-note music with sampled instruments and recorded foley. Engine: `src/core/audio.ts`; score: `src/core/music.ts`; asset list with measured pitches: `src/core/audioAssets.ts`; files: `public/audio/` (145 CC0 recordings, 3.2 MB mono MP3, loaded per gallery). Sources are credited in `ART_LICENSES.md` and the in-game credits.
