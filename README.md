@@ -8,6 +8,8 @@ No download, no sign-up, no ads. Works with a mouse or a thumb, on desktop or ph
 
 **At a glance:** 10 public-domain masterpieces · 30 stages across 14 game mechanics · an original score arranged for every gallery · a fact notebook written at a 2nd-grade reading level · no accounts, ads or tracking · 131 KB of gzipped JavaScript, no game engine.
 
+**Reviewing the project?** Start with [the decisions that mattered](#how-it-was-built-the-decisions-that-mattered), then [what's next](#whats-next-in-priority-order) and [what isn't verified yet](#status-the-honest-version).
+
 ![Main menu: a gilded Girl with a Pearl Earring under amber varnish in a velvet-curtained gallery, with Pip scrubbing from a scaffold, Professor Bristlebrow inspecting the frame, Big Mo holding the ladder and Zuzu chasing a soot critter across the top of the frame](screenshots/title-desktop.jpg)
 
 ---
@@ -16,16 +18,19 @@ No download, no sign-up, no ads. Works with a mouse or a thumb, on desktop or ph
 
 You know the Mona Lisa. You've never seen her like this.
 
+![Scrubbing soot off the Mona Lisa with the crew, then pulling back to reveal the restored painting and the results card](screenshots/restore.gif)
+
 Masterpiece Mayhem drops you *into* ten famous paintings. Brushstrokes become hills, varnish becomes a peeling amber sky, and a crack in the paint becomes a road your crew drives pigment down. You scrub, peel, polish, route, lasso and build your way through **30 stages**, and each one ends the same way: you pull back and watch a masterpiece come back to life.
 
-- **See it fast.** You recognise the painting within two seconds, and tiny characters are already up to something.
-- **Play it right away.** Your first scrub happens in under ten seconds.
+- **Play it right away.** On a throttled mid-range phone the menu is ready in 1.8 s, and a new player's first scrub comes 9.5 s after tapping Play.
 - **Stay for the variety.** Varnish peels, crack-road logistics, Seurat colour-mixing puzzles, a lasso roundup, a bridge-building physics puzzle and a three-phase slime-king boss fight.
 - **Mistakes are fun, not fatal.** Over-scrub and the **Botch Meter** curses the painting with goofy, temporary distortions.
 
 ## For kids, parents and teachers
 
 The learning lives inside the play, not in quizzes.
+
+![A Conservator's Notebook page for The Night Watch with three short facts, next to the look-closer view zoomed in on a hotspot about the captain's hand shadow](screenshots/notebook.jpg)
 
 - **Conservator's Notebook.** Restoring any stage unlocks that painting's page: a fun opener, three short true facts, its size in kid terms ("taller than a basketball hoop") and where to see it in real life.
 - **Look closer.** Numbered spots zoom into the real painting: the shadow of a hand on a coat, a missing eyebrow, Fuji hiding behind a wave.
@@ -49,7 +54,7 @@ A **Parents & teachers** page in Settings covers what players learn and how to u
 | **Big Mo Brogan**, lifter & scaffold boss | A gentle giant in a hard hat three sizes too small. |
 | **Zuzu Glimmer**, lamplighter & pigment courier | The smallest and fastest, with an antenna lantern. |
 
-**The Grimelings** are the troublemakers: **Smudge** the soot smudger, **Blotto** the wobbly ink stain, **Crackle** the craquelure critter, and their ruler **King Gloopus**, who swallowed a paintbrush, a button and a crown and kept the crown. They act: surprised, panicked, sneaky, and waving a tiny white flag when you win. Design rationale: [CHARACTER_BIBLE.md](CHARACTER_BIBLE.md).
+**The Grimelings** are the troublemakers, led by **King Gloopus**, who swallowed a paintbrush, a button and a crown and kept the crown. They sneak, panic and wave a tiny white flag when you catch them. Design notes: [CHARACTER_BIBLE.md](CHARACTER_BIBLE.md).
 
 ## Ten masterpieces, five galleries, 30 stages
 
@@ -74,14 +79,13 @@ A **Parents & teachers** page in Settings covers what players learn and how to u
 One original waltz theme, re-orchestrated for each room: a wind-up music box on the menu, pizzicato strings in Gallery I, marimba and flute in II, flute over harp in III, a cheeky bassoon in IV, clarinet and parlour piano in V, a minor-key march for King Gloopus and a slow hymn for the finale.
 
 - **It grows as you restore.** Extra parts come in as the painting gets cleaner, and the win resolves the tune in key.
-- **Sound that follows your hand.** Scrubbing, peeling and spraying get denser the harder you work; the vacuum motor spins up.
-- **Recorded, not beeped.** 145 CC0 recordings (3.2 MB, loaded one gallery at a time), layered and varied so nothing repeats exactly.
+- **Sound that follows your hand.** 145 CC0 recordings (3.2 MB, loaded per gallery), layered so scrubbing, peeling and spraying get denser the harder you work.
 
 ## How it was built: the decisions that mattered
 
 | Decision | Why | Trade-off accepted | How it was checked |
 |---|---|---|---|
-| No game engine or UI framework (Canvas 2D + plain DOM) | Fast first load on school Chromebooks and old phones; full control of the look | More code written by hand | 131 KB gzipped JS; two runtime dependencies, both fonts |
+| No game engine or UI framework (Canvas 2D + plain DOM) | Fast first load on school Chromebooks and old phones; full control of the look | More code written by hand | 131 KB gzipped JS, two runtime dependencies (both fonts); first paint 0.9 s and menu ready 1.8 s on a throttled mid-range phone* |
 | Characters drawn in code, not sprite sheets | One felt-and-clay material for 4 heroes and 10 critters, at any size, in any mood | Art iteration happens in TypeScript | A Crew & Critters page and a 20px/48px readability check |
 | Public-domain paintings with a fallback | Real masterpieces, never a broken image | Commercial release still needs a rights review (stated below) | Each file's status confirmed through the Wikimedia Commons API |
 | Free CC0 recordings over a commissioned score | Real instruments now, at no cost; a composer can drop in later | A ceiling short of a bespoke score | Audio recorded from the engine: arrangements level-matched within about 1 LU, no clipping, pitch content matches each key |
@@ -89,10 +93,22 @@ One original waltz theme, re-orchestrated for each room: a wind-up music box on 
 | 2nd-grade reading level, enforced | Teachers and parents need it to be truly readable | Fewer, shorter facts | Unit tests cap sentence length and reading grade |
 | Privacy by default | Children are the audience | No leaderboards or cloud saves | No network calls beyond the game's own assets |
 
+<sub>*Measured 2026-11-15 on the production build in Chromium at 390×844, with the CPU slowed 4× and a 4G-like connection (9 Mbps, 85 ms latency); median of three runs. First visit transfers 1.2 MB in total, including fonts and the title painting.</sub>
+
+## What's next (in priority order)
+
+1. **Teacher review of the 30 notebook facts.** Accuracy is the whole value for schools, and it is cheap to check.
+2. **Playtest with children on real phones.** The share clip, read-aloud and touch feel depend on the device and have only been tested in desktop Chromium.
+3. **Make stages 25, 29 and 30 reliably winnable.** The automated solver can't finish them yet, which means some children may not either.
+4. **Classroom mode.** Join with a code, no student accounts, sessions sized for a 15-minute lesson slot.
+5. **Rights review before any commercial release**, swapping in museums' own open-access images where needed.
+6. **A commissioned score** once there's a budget. The audio engine already plays any recorded arrangement.
+
+**Deliberately not planned:** accounts, leaderboards, ads and in-app purchases. They add risk for a young audience and none of them make the game better at its job.
+
 ## Built for everyone
-- **Mobile and desktop:** portrait and landscape, touch and mouse, no accidental page scroll.
 - **Accessible:** keyboard controls (Esc/P pause, Z zoom, H hint, 1–9 tools), focus rings, ARIA labels, live objective updates, reduced-motion mode, separate sound and music toggles, a six-step type scale with nothing below 12px.
-- **Lightweight:** 131 KB of gzipped JavaScript and 15 KB of CSS, plus fonts, painting images and audio loaded per gallery.
+- **Lightweight:** 131 KB of gzipped JavaScript and 15 KB of CSS. The first visit transfers 1.2 MB in total; other paintings and each gallery's audio load when needed.
 
 ## Run it locally
 
@@ -106,8 +122,8 @@ npm run preview      # serve dist/ on http://localhost:4173
 `?stage=12` jumps to an unlocked stage; `?qa` unlocks everything.
 
 ## Tests
-- **Unit (Vitest):** `npm test` runs 65 tests: truss physics, courier routing, the character cast, the musical score (every note in key, no sample stretched past a fifth) and the notebook (sentence length, reading grade, hotspot placement).
-- **Browser (Playwright):** `npm run test:e2e` builds the production bundle and runs 8 tests on desktop and phone viewports: the menu cast never covers a button, wiping removes real grime, routing, the Crew & Critters page, real scrub progress, an autoplayed stage-1 win, the notebook and look-closer flow, and the parents page.
+- **Unit (Vitest):** `npm test` runs 65 tests, including the musical score (every note in key) and the notebook (sentence length and reading grade).
+- **Browser (Playwright):** `npm run test:e2e` builds the production bundle and runs 8 flows on desktop and phone: menu layout, real grime removal, routing, the cast page, scrub progress, a full stage win, the notebook and the parents page.
 - **Autoplay regression:** `node scripts/autoplay-all.mjs 1-30` runs the built-in solver on every stage against a running dev server.
 
 ## Status: the honest version
@@ -117,7 +133,7 @@ Playable today and live. What is verified and what isn't is in [DEVELOPMENT_STAT
 - The 30 notebook facts were written from well-documented sources and are pending review by a teacher.
 
 ## Credits & a friendly warning
-The ten paintings are public-domain works; the bundled images are downscaled Wikimedia Commons files marked *Public domain* (sources and caveats in [ART_LICENSES.md](ART_LICENSES.md)). Some museums restrict commercial use of photos of their collections, so **a rights review is required before any commercial release.** Characters, grime, tools, UI, score and sound design are original. The recordings they use are CC0, from [Versilian Studios Chamber Orchestra 2 – Community Edition](https://github.com/sgossner/VSCO-2-CE) and [Kenney](https://kenney.nl).
+The paintings are public-domain works, bundled as downscaled Wikimedia Commons files marked *Public domain*. Some museums restrict commercial use of photos of their collections, so **a rights review is required before any commercial release** (details in [ART_LICENSES.md](ART_LICENSES.md)). Everything else is original; the recordings it plays are CC0, from [VSCO 2 Community Edition](https://github.com/sgossner/VSCO-2-CE) and [Kenney](https://kenney.nl).
 
 > 🧽 **This is a fantasy.** Never scrub, peel, polish or spray a real painting. Leave that to trained conservators.
 
